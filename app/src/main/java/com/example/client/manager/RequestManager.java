@@ -97,6 +97,7 @@ public class RequestManager {
             public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
                 super.onMessage(webSocket, text);
                 Log.d("foreground","websocket on message: "+text);
+
             }
 
             @Override
