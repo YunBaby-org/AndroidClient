@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.TransactionTooLargeException;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -14,6 +15,7 @@ import com.example.client.manager.PositionManager;
 import com.example.client.manager.RequestManager;
 import com.example.client.services.ForegroundService;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -38,21 +40,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Thread t = new Thread(){
-            @Override
-            public void run() {
-                super.run();
-//                JSONObject wifi_res = positionManager.ScanWifi();
-//                requestManager.post("http://140.125.205.78:8080",wifi_res.toString());
-                requestManager.createwebsocket("ws://140.125.205.78:8080");
-            }
-        };
-        t.start();
-    }
-
+    /*
+        if you want to start foreground service
+        call this function
+    * */
     public void startService(View v){
         Intent intent = new Intent(MainActivity.this, ForegroundService.class);
         startService(intent);
@@ -61,7 +52,25 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(MainActivity.this,ForegroundService.class);
         stopService(intent);
     }
-    public void test(View v){
+    public void login(View v){
+        JSONObject json = new JSONObject();
+        try {
+            json.put("email","toby5500@kimo.com");
+            json.put("password","asfasgag");
+            requestManager.post("http://140.125.205.78:8080/","login",json.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.d("error","login json error");
+        }
 
+
+    }
+    public void whoami(View v){
+        requestManager.get("http://140.125.205.78:8080/","whoami");
+    }
+    public void websocket(View v){
+        //when we enter server, it will auto update the session expire time
+        //requestManager.get("http://140.125.205.78:8080/","any");
+        requestManager.createwebsocket("ws://140.125.205.78:8080");
     }
 }

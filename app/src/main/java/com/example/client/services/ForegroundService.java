@@ -65,16 +65,6 @@ public class ForegroundService extends Service {
 //       },0,60000);
 
         /*  if we want to use okhttp, we must create a new thread  */
-        Thread t = new Thread(){
-            @Override
-            public void run() {
-                super.run();
-                //requestManager.createwebsocket("ws://140.125.205.78:8080");
-                requestManager.get("http://140.125.205.78:8000");
-
-            }
-        };
-        t.start();
 
         return START_NOT_STICKY;
     }
