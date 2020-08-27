@@ -3,4 +3,7 @@
     <string name="btn_idle">sign in</string>
     <string name="btn_complete">complete</string>
     <string name="btn_error">error</string>
+    <string name="notification_channel_name">Foreground Service</string>
+    <string name="notification_channel_description">失智症老人追蹤平安符</string>
+    <string name="foreground_service_tracking_title">平安符追蹤中</string>
 </resources>

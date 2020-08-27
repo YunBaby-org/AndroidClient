@@ -54,14 +54,14 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_marginTop="20dp">
+
         <com.google.android.material.button.MaterialButton
 
-            android:textSize="20dp"
+            android:layout_width="280dp"
+            android:layout_height="50dp"
             android:fontFamily="@font/gotham"
             android:text="Login"
-            android:onClick="login"
-            android:layout_width="280dp"
-            android:layout_height="50dp">
+            android:textSize="20dp">
 
         </com.google.android.material.button.MaterialButton>
     </LinearLayout>
@@ -71,14 +71,14 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_marginTop="20dp">
+
         <com.google.android.material.button.MaterialButton
 
-            android:textSize="20dp"
+            android:layout_width="280dp"
+            android:layout_height="50dp"
             android:fontFamily="@font/gotham"
             android:text="whoami"
-            android:onClick="whoami"
-            android:layout_width="280dp"
-            android:layout_height="50dp">
+            android:textSize="20dp">
 
         </com.google.android.material.button.MaterialButton>
     </LinearLayout>
@@ -87,14 +87,14 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_marginTop="20dp">
+
         <com.google.android.material.button.MaterialButton
 
-            android:textSize="20dp"
+            android:layout_width="280dp"
+            android:layout_height="50dp"
             android:fontFamily="@font/gotham"
             android:text="websocket"
-            android:onClick="websocket"
-            android:layout_width="280dp"
-            android:layout_height="50dp">
+            android:textSize="20dp">
 
         </com.google.android.material.button.MaterialButton>
     </LinearLayout>
