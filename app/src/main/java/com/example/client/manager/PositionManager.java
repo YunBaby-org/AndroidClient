@@ -24,19 +24,19 @@ public class PositionManager {
     private Context MyContext;
     private WifiManager wifiManager;
     private BroadcastReceiver wifiScanReceiver;
-    private TelephonyManager tmanager;
+    private TelephonyManager telephonyManager;
 
     public PositionManager(Context context) {
-        this.MyContext = context;
-        this.tmanager = (TelephonyManager) MyContext.getSystemService(Context.TELEPHONY_SERVICE);
-        this.wifiManager = (WifiManager) MyContext.getSystemService(Context.WIFI_SERVICE);
 
+        this.MyContext = context;
+        this.wifiManager = (WifiManager) MyContext.getSystemService(Context.WIFI_SERVICE);
+        this.telephonyManager = (TelephonyManager) MyContext.getSystemService(Context.TELEPHONY_SERVICE);
+
+        /* Register a broadcast receiver for Wifi result */
         this.wifiScanReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                boolean success = intent.getBooleanExtra(
-                        WifiManager.EXTRA_RESULTS_UPDATED, false);
-
+                boolean success = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false);
             }
         };
 
@@ -56,26 +56,67 @@ public class PositionManager {
 
     private JSONObject ScanSuccess() {
         List<ScanResult> results = wifiManager.getScanResults();
-        for (int i = 0; i < results.size(); i++) {
-            Log.d("scanwifi", results.get(i).BSSID + " " + results.get(i).SSID);
-        }
         JSONObject scan_result = CreateWifiJson(results);
         Log.d("scanwifi",CreateWifiJson(results).toString());
 
         return scan_result;
-
     }
 
     private JSONObject ScanFailure() {
         Log.d("scanwifi", "ScanFailure");
         JSONObject scan_rsult = new JSONObject();
         try {
-            scan_rsult.put("error","scan failure");
+            scan_rsult.put("error", "scan failure");
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return scan_rsult;
 
+    }
+
+
+    private JSONObject CreateWifiJson(List<ScanResult> results) {
+        JSONObject json = new JSONObject();
+        Log.d("scanwif", "creating wifi json ");
+        try {
+
+            String mccmnc = telephonyManager.getNetworkOperator();
+            // mccmnc 通常會得到該裝置的 MobileCountryCode 和 MobileNetworkCode
+            // 但是有一些裝置(如平板，他沒有 SIM 卡因此他不會返回某些數值，這時我們會需要偽造他
+            if (mccmnc.length() == 5) {
+                json.put("homeMobileCountryCode", mccmnc.substring(0, 3));
+                json.put("homeMobileNetworkCode", mccmnc.substring(3));
+            } else {
+                json.put("homeMobileCountryCode", "466");
+                json.put("homeMobileNetworkCode", "11");
+            }
+
+            if (ActivityCompat.checkSelfPermission(MyContext, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation for ActivityCompat#requestPermissions for more details.
+            }
+
+            json.put("radioType", toNetworkTypeString(telephonyManager.getDataNetworkType()));
+            json.put("carrier", telephonyManager.getSimOperatorName());
+            json.put("considerIp", false);
+            json.put("cellTowers", new JSONArray());
+            JSONArray json_wifi = new JSONArray();
+            for (ScanResult sr : results) {
+                JSONObject wifi = new JSONObject();
+                wifi.put("macAddress", sr.BSSID);
+                wifi.put("signalStrength", sr.level);
+                wifi.put("age", SystemClock.elapsedRealtime() - sr.timestamp / 1000);
+                wifi.put("channel", frequencyToChannel(sr.frequency));
+                wifi.put("signalToNoiseRatio", 0);
+                json_wifi.put(wifi);
+            }
+            json.put("wifiAccessPoints", json_wifi);
+        } catch (Exception ex) {
+            Log.d("test", ex + "get json error");
+        }
+
+        return json;
     }
 
     private String toNetworkTypeString(int value) {
@@ -219,60 +260,5 @@ public class PositionManager {
         }
         throw new Exception("Unknow frequency " + f);
     }
-
-    private JSONObject CreateWifiJson(List<ScanResult> results) {
-        JSONObject json = new JSONObject();
-        Log.d("scanwif", "creating wifi json ");
-        try {
-
-            String mccmnc = tmanager.getNetworkOperator();
-            // mccmnc 通常會得到該裝置的 MobileCountryCode 和 MobileNetworkCode
-            // 但是有一些裝置(如平板，他沒有 SIM 卡因此他不會返回某些數值，這時我們會需要偽造他
-            if (mccmnc.length() == 5) {
-                json.put("homeMobileCountryCode", mccmnc.substring(0, 3));
-                json.put("homeMobileNetworkCode", mccmnc.substring(3));
-            } else {
-                json.put("homeMobileCountryCode", "466");
-                json.put("homeMobileNetworkCode", "11");
-            }
-
-            if (ActivityCompat.checkSelfPermission(MyContext, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-
-            }
-            Log.d("scanwifi","network "+toNetworkTypeString(tmanager.getDataNetworkType()));
-            json.put("radioType", toNetworkTypeString(tmanager.getDataNetworkType()));
-            json.put("carrier", tmanager.getSimOperatorName());
-            json.put("considerIp", false);
-            json.put("cellTowers", new JSONArray());
-            JSONArray json_wifi = new JSONArray();
-            for(ScanResult sr : results){
-                JSONObject wifi = new JSONObject();
-                Log.d("scanwifi","hi");
-                wifi.put("macAddress", sr.BSSID);
-                wifi.put("signalStrength", sr.level);
-                Log.d("test",sr.SSID);
-                Log.i("time", String.format("%d",System.currentTimeMillis()));
-                Log.i("time", String.format("%d", SystemClock.elapsedRealtime()));
-                Log.i("time", String.format("%d",sr.timestamp/1000));
-                wifi.put("age",  SystemClock.elapsedRealtime() - sr.timestamp/1000);
-                wifi.put("channel", frequencyToChannel(sr.frequency));
-                wifi.put("signalToNoiseRatio", 0);
-                json_wifi.put(wifi);
-            }
-            json.put("wifiAccessPoints", json_wifi);
-        }catch(Exception ex){
-            Log.d("test",ex+"get json error");
-        }
-
-        return json;
-    }
-
 }
 

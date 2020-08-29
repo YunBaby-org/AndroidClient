@@ -12,6 +12,8 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.client.MainActivity;
 import com.example.client.R;
+import com.example.client.manager.PreferenceManager;
+import com.example.client.runners.ForegroundRunner;
 
 import static com.example.client.App.CHANNEL_ID;
 
@@ -21,6 +23,8 @@ public class ForegroundService extends Service {
     /* TODO: Restart the service on accident */
 
     private static final int FOREGROUND_SERVICE_NOTIFICATION_ID = 1;
+    private Thread consumerThread;
+
 
     @Override
     public void onCreate() {
@@ -43,7 +47,17 @@ public class ForegroundService extends Service {
                 .build();
         startForeground(FOREGROUND_SERVICE_NOTIFICATION_ID, notification);
 
+        setupConsumerThread();
+
         return START_STICKY;
+    }
+
+    private void setupConsumerThread() {
+        if (consumerThread == null) {
+            PreferenceManager manager = new PreferenceManager(this);
+            consumerThread = new Thread(new ForegroundRunner(this, manager.getTrackerID()));
+            consumerThread.start();
+        }
     }
 
     @Nullable
@@ -57,3 +71,4 @@ public class ForegroundService extends Service {
         super.onDestroy();
     }
 }
+
