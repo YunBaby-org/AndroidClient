@@ -5,7 +5,6 @@ import com.example.client.manager.Managers;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-@RequestClass
 public class RequestGetDeviceStatus extends Request {
     @Override
     public void parseFromJSON(JSONObject request) throws InvalidRequestFormatException, JSONException {

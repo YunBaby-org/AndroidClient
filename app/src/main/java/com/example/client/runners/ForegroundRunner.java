@@ -1,6 +1,7 @@
 package com.example.client.runners;
 
 import android.content.Context;
+import android.os.HandlerThread;
 import android.util.Log;
 
 import com.example.client.amqp.AmqpHandler;
@@ -25,13 +26,15 @@ public class ForegroundRunner implements Runnable {
 
     private Context context;
     private AmqpHandler amqpHandler;
+    private HandlerThread workerThread;
     private String trackerId;
     private Managers managers;
 
-    public ForegroundRunner(Context context, String trackerId) {
+    public ForegroundRunner(Context context, String trackerId, HandlerThread workerThread) {
         this.context = context;
+        this.workerThread = workerThread;
         this.trackerId = trackerId;
-        this.managers = new Managers(context);
+        this.managers = new Managers(context, workerThread);
     }
 
     @Override

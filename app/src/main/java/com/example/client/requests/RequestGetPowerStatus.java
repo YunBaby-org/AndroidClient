@@ -6,7 +6,6 @@ import com.example.client.manager.PowerManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-@RequestClass
 public class RequestGetPowerStatus extends Request {
     @Override
     public void parseFromJSON(JSONObject request) throws JSONException, InvalidRequestFormatException {

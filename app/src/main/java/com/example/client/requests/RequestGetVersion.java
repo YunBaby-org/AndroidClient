@@ -10,7 +10,6 @@ import org.json.JSONObject;
 
 import java.util.Locale;
 
-@RequestClass
 public class RequestGetVersion extends Request {
     @Override
     public void parseFromJSON(JSONObject request) throws JSONException, InvalidRequestFormatException {

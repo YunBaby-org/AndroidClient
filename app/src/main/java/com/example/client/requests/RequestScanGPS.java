@@ -1,9 +1,16 @@
 package com.example.client.requests;
 
+import android.location.Location;
+import android.util.Log;
+
+import com.example.client.manager.GpsLocationManager;
 import com.example.client.manager.Managers;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 public class RequestScanGPS extends Request {
     @Override
@@ -15,6 +22,31 @@ public class RequestScanGPS extends Request {
 
     @Override
     public JSONObject createResponse(Managers managers) {
-        return null;
+        try {
+            Location location = managers.getGpsLocationManager().getLastLocation();
+            JSONObject result = new JSONObject();
+            result.put("Longitude", location.getLongitude());
+            result.put("Latitude", location.getLatitude());
+            return createSuccessResponse(requestName, result);
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+            Log.e("RequestScanGPS", "Location timeout");
+            return createFailedResponse(requestName, "Operation Timeout");
+        } catch (GpsLocationManager.OutdatedLocationException e) {
+            e.printStackTrace();
+            Log.e("RequestScanGPS", "Out-dated location");
+            return createFailedResponse(requestName, "Service Not Ready");
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            if (e.getCause() instanceof SecurityException) {
+                Log.e("RequestScanGPS", "Require location permission");
+                return createFailedResponse(requestName, "Permission Denied");
+            } else {
+                return createFailedResponse(requestName, "Internal Error");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return createFailedResponse(requestName, "Internal Error");
+        }
     }
 }

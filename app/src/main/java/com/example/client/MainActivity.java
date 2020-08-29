@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.client.manager.GpsLocationManager;
 import com.example.client.services.ForegroundService;
 
 public class MainActivity extends AppCompatActivity {
@@ -16,6 +17,11 @@ public class MainActivity extends AppCompatActivity {
 
         /* Start the service */
         startService();
+
+        /* Ensure we have the location permission */
+        GpsLocationManager.ensurePermissionGranted(this);
+
+        /* TODO: Check if the location setting is enabled */
 
         /* Exit the program immediate, we are not yet provide more advance feature right now */
         finishAffinity();

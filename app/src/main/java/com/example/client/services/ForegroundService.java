@@ -4,7 +4,9 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Process;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -24,7 +26,7 @@ public class ForegroundService extends Service {
 
     private static final int FOREGROUND_SERVICE_NOTIFICATION_ID = 1;
     private Thread consumerThread;
-
+    private HandlerThread workerThread;
 
     @Override
     public void onCreate() {
@@ -47,15 +49,23 @@ public class ForegroundService extends Service {
                 .build();
         startForeground(FOREGROUND_SERVICE_NOTIFICATION_ID, notification);
 
+        setupWorkerThread();
         setupConsumerThread();
 
         return START_STICKY;
     }
 
+    private void setupWorkerThread() {
+        if (workerThread == null) {
+            workerThread = new HandlerThread("WorkerThread", Process.THREAD_PRIORITY_LESS_FAVORABLE);
+            workerThread.start();
+        }
+    }
+
     private void setupConsumerThread() {
         if (consumerThread == null) {
             PreferenceManager manager = new PreferenceManager(this);
-            consumerThread = new Thread(new ForegroundRunner(this, manager.getTrackerID()));
+            consumerThread = new Thread(new ForegroundRunner(this, manager.getTrackerID(), workerThread));
             consumerThread.start();
         }
     }
