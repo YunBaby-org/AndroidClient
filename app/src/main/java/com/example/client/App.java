@@ -7,6 +7,10 @@ import android.util.Log;
 
 import androidx.core.app.NotificationManagerCompat;
 
+/* TODO: 決定追蹤器的資料載入方式 */
+/* TODO: 決定追蹤器的驗證方式 */
+/* TODO: 實作追蹤器的自動回傳位置功能 */
+
 public class App extends Application {
 
     public static final String CHANNEL_ID = "ForegroundService-NotificationChannel";
