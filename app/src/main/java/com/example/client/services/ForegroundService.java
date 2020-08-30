@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Process;
@@ -16,6 +17,7 @@ import com.example.client.MainActivity;
 import com.example.client.R;
 import com.example.client.manager.PreferenceManager;
 import com.example.client.runners.ForegroundRunner;
+import com.google.android.gms.common.util.concurrent.HandlerExecutor;
 
 import static com.example.client.App.CHANNEL_ID;
 
@@ -26,6 +28,11 @@ public class ForegroundService extends Service {
 
     private static final int FOREGROUND_SERVICE_NOTIFICATION_ID = 1;
     private Thread consumerThread;
+
+    /* WARNING: Current threading setup works for only one instance of consumer */
+    /* If you want to scale the amount of consumer, consider making more thread for executor */
+    private HandlerExecutor workExecutor;
+    private Handler workerHandler;
     private HandlerThread workerThread;
 
     @Override
@@ -59,13 +66,15 @@ public class ForegroundService extends Service {
         if (workerThread == null) {
             workerThread = new HandlerThread("WorkerThread", Process.THREAD_PRIORITY_LESS_FAVORABLE);
             workerThread.start();
+            workerHandler = new Handler(workerThread.getLooper());
+            workExecutor = new HandlerExecutor(workerHandler.getLooper());
         }
     }
 
     private void setupConsumerThread() {
         if (consumerThread == null) {
             PreferenceManager manager = new PreferenceManager(this);
-            consumerThread = new Thread(new ForegroundRunner(this, manager.getTrackerID(), workerThread));
+            consumerThread = new Thread(new ForegroundRunner(this, manager.getTrackerID(), workerThread, workExecutor));
             consumerThread.start();
         }
     }

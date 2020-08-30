@@ -10,6 +10,8 @@ import com.example.client.amqp.AmqpOperationFailedException;
 import com.example.client.manager.Managers;
 import com.example.client.requests.Request;
 import com.example.client.requests.RequestFactory;
+import com.google.android.gms.common.util.concurrent.HandlerExecutor;
+import com.google.android.gms.location.LocationRequest;
 import com.rabbitmq.client.Delivery;
 
 import org.jetbrains.annotations.NotNull;
@@ -27,14 +29,20 @@ public class ForegroundRunner implements Runnable {
     private Context context;
     private AmqpHandler amqpHandler;
     private HandlerThread workerThread;
+    private HandlerExecutor workExecutor;
     private String trackerId;
     private Managers managers;
 
-    public ForegroundRunner(Context context, String trackerId, HandlerThread workerThread) {
+    public ForegroundRunner(Context context, String trackerId, HandlerThread workerThread, HandlerExecutor workExecutor) {
         this.context = context;
         this.workerThread = workerThread;
         this.trackerId = trackerId;
-        this.managers = new Managers(context, workerThread);
+        this.managers = new Managers(context, workerThread, workExecutor);
+        this.workExecutor = workExecutor;
+
+        /* Start receiving update from GPS & Wifi */
+        managers.getGpsLocationManager().setupLocationRequest(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, 30, null);
+        managers.getWirelessSignalManager().setupWifiScanReceiver(null);
     }
 
     @Override

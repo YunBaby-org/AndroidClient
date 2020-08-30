@@ -13,11 +13,12 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +35,14 @@ public class GpsLocationManager {
         this.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
     }
 
-    public void setupLocationRequest(int accuracy, int intervalSecond, @NotNull LocationCallback callback) throws SecurityException {
+    public void setupLocationRequest(int accuracy, int intervalSecond, @Nullable LocationCallback innerCallback) throws SecurityException {
+        LocationCallback callback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (innerCallback != null)
+                    innerCallback.onLocationResult(locationResult);
+            }
+        };
         LocationRequest locationRequest = LocationRequest.create();
         locationRequest.setPriority(accuracy);
         locationRequest.setInterval(intervalSecond * 1000);
