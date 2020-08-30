@@ -10,13 +10,13 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.TimeoutException;
 
-class AmqpChannelFactory {
+public class AmqpChannelFactory {
 
     /* The singleton instance */
     private static AmqpChannelFactory instance;
 
     /* Get the singleton instance */
-    static AmqpChannelFactory getInstance() throws NoSuchAlgorithmException, KeyManagementException, URISyntaxException, IOException, TimeoutException {
+    public static AmqpChannelFactory getInstance() throws NoSuchAlgorithmException, KeyManagementException, URISyntaxException, IOException, TimeoutException {
         if (instance == null) {
             synchronized (AmqpChannelFactory.class) {
                 if (instance == null)
@@ -54,7 +54,7 @@ class AmqpChannelFactory {
     }
 
     /* Get a channel from existing connection */
-    Channel createChannel() throws IOException {
+    public Channel createChannel() throws IOException {
         return amqpConnection.createChannel();
     }
 

@@ -12,7 +12,7 @@ public class RequestSetAutoReport extends Request {
     @Override
     public void parseFromJSON(JSONObject request) throws InvalidRequestFormatException, JSONException {
         requestName = request.getString("Request");
-        if (!requestName.equals("GetDeviceStatus"))
+        if (!requestName.equals("SetAutoReport"))
             throw new InvalidRequestFormatException("Failed to parse such request");
         Enable = request.getJSONObject("Payload").getBoolean("Enable");
     }

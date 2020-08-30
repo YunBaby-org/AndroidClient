@@ -13,6 +13,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 public class RequestScanGPS extends Request {
+
+    public RequestScanGPS() {
+        this.requestName = "ScanGPS";
+    }
+
     @Override
     public void parseFromJSON(JSONObject request) throws InvalidRequestFormatException, JSONException {
         requestName = request.getString("Request");
@@ -22,8 +27,12 @@ public class RequestScanGPS extends Request {
 
     @Override
     public JSONObject createResponse(Managers managers) {
+        return createResponse(managers.getGpsLocationManager());
+    }
+
+    public JSONObject createResponse(GpsLocationManager gpsLocationManager) {
         try {
-            Location location = managers.getGpsLocationManager().getLastLocation();
+            Location location = gpsLocationManager.getLastLocation();
             JSONObject result = new JSONObject();
             result.put("Longitude", location.getLongitude());
             result.put("Latitude", location.getLatitude());
