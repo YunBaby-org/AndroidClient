@@ -16,6 +16,12 @@ import java.nio.charset.StandardCharsets;
 /* This class create a AMQP consumer */
 /* It must run on different thread */
 public class AmqpHandler {
+    private final static int AMQP_CONSUMER_PREFETCH_LIMIT = 2;
+
+    public Channel getAmqpChannel() {
+        return amqpChannel;
+    }
+
     private Channel amqpChannel;
     private String trackerId;
 
@@ -49,24 +55,22 @@ public class AmqpHandler {
                 Log.w("AmqpHandler", "Connect to AMQP Broker failed, retry :" + i);
                 lastError = e;
             }
-            /* The retry interval will be [interval, interval*2], this could avoid a retry burst if our server fuck up for a moment */
-            Thread.sleep((int) (interval * (1 + Math.random())));
-            /* Increase the interval by a factor of 3, maximum will be 20 second */
-            interval = Math.min((interval * 3), 20_000);
+            /* The retry interval will be [interval, interval*6], this could avoid a retry burst if our server fuck up for a moment */
+            Thread.sleep((int) (interval * (1 + 5 * Math.random())));
+            /* Increase the interval by a factor of 1.25, maximum will be 10 second */
+            interval = Math.min((int) (interval * 1.25), 6_000);
         }
         throw new Exception("Unable to setup channel", lastError);
     }
 
     /**
-     * Start consuming message from the tracker's queue, this method basically will block the execution
-     * so it is better to execute it on different thread.
+     * Start consuming message from the tracker's queue.
      *
      * @param callback the callback to invoke when message consumed
      * @throws IOException Something fuck up
      */
     public void consume(OnConsumedCallback callback) throws IOException {
-        /* TODO: Currently the implementation ack all message by default, please ack it manually in further version */
-        /* TODO: Setting up prefetch value for current channel */
+        amqpChannel.basicQos(AmqpHandler.AMQP_CONSUMER_PREFETCH_LIMIT);
         amqpChannel.basicConsume(AmqpHandler.getQueueNameByTrackerId(trackerId), false, getDeliverCallback(callback), getCancelCallback());
     }
 
@@ -81,6 +85,8 @@ public class AmqpHandler {
         return new DeliverCallback() {
             @Override
             public void handle(String consumerTag, Delivery message) throws IOException {
+
+                Log.d("AmqpHandler", "Consumer message with thread " + Thread.currentThread().getName());
 
                 /* Attempts to call the callback if it is given */
                 if (callback != null) {
@@ -116,7 +122,10 @@ public class AmqpHandler {
     }
 
     public void publishMessage(String exchange, String routingKey, JSONObject message) throws IOException {
-        this.amqpChannel.basicPublish(exchange, routingKey, null, message.toString().getBytes(StandardCharsets.UTF_8));
+        if (this.amqpChannel.isOpen())
+            this.amqpChannel.basicPublish(exchange, routingKey, null, message.toString().getBytes(StandardCharsets.UTF_8));
+        else
+            throw new IOException("Disconnected");
     }
 
     /**

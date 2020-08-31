@@ -8,6 +8,8 @@ import com.example.client.manager.Managers;
 import com.example.client.requests.Request;
 import com.example.client.requests.RequestFactory;
 import com.rabbitmq.client.Delivery;
+import com.rabbitmq.client.ShutdownListener;
+import com.rabbitmq.client.ShutdownSignalException;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -29,14 +31,39 @@ public class AmqpConsumerRunner implements Runnable {
 
     @Override
     public void run() {
-        try {
-            amqpHandler = new AmqpHandler(trackerId);
-            amqpHandler.consume(getCallback());
-        } catch (Exception e) {
-            e.printStackTrace();
-            // TODO: When the runner crash, restart the connection and channel gracefully.
-            Log.e("AMQP Consumer", "Amqp Consumer crashes");
+        /* As long as the thread is not interrupted, we keep running and bring amqp channel & connection back if it breaks. */
+        while (!Thread.interrupted()) {
+            try {
+                if (amqpHandler == null || !amqpHandler.getAmqpChannel().isOpen()) {
+                    amqpHandler = new AmqpHandler(trackerId);
+                    amqpHandler.getAmqpChannel().addShutdownListener(createShutdownListener());
+                    amqpHandler.consume(getCallback());
+                    Log.w("AmqpConsumerRunner", "Setup new consumer");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e("AmqpConsumerRunner", "AMQP consumer crashes");
+            }
+            if (Thread.interrupted()) break;
+
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
+    }
+
+    @NotNull
+    private ShutdownListener createShutdownListener() {
+        return new ShutdownListener() {
+            @Override
+            public void shutdownCompleted(ShutdownSignalException cause) {
+                cause.printStackTrace();
+                Log.e("AmqpConsumerRunner", "Channel closed due to exception");
+                Log.e("AmqpConsumerRunner", cause.toString());
+            }
+        };
     }
 
     @NotNull

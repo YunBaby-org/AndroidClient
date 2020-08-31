@@ -57,9 +57,10 @@ public class AutoReportManager {
     }
 
     private void ensureAmqpHandler() {
-        if (amqpHandler == null) {
+        if (amqpHandler == null || !amqpHandler.getAmqpChannel().isOpen()) {
             try {
                 amqpHandler = new AmqpHandler(trackerId);
+                Log.d("AutoReportManager", "Create new instance of Amqp Handler");
             } catch (Exception e) {
                 e.printStackTrace();
             }

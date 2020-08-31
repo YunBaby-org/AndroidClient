@@ -20,6 +20,7 @@ public class RequestSetReportInterval extends Request {
     @Override
     public JSONObject createResponse(Managers managers) {
         try {
+            /* TODO: Let the response effect immediately */
             managers.getPreferenceManager().setReportInterval(interval);
             return createSuccessResponse(requestName);
         } catch (ArithmeticException e) {

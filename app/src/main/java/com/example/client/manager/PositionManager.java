@@ -20,6 +20,7 @@ import org.json.JSONObject;
 
 import java.util.List;
 
+@Deprecated
 public class PositionManager {
     private Context MyContext;
     private WifiManager wifiManager;
