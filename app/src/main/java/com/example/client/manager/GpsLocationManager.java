@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Looper;
 
 import androidx.core.app.ActivityCompat;
@@ -29,8 +30,11 @@ public class GpsLocationManager {
     private FusedLocationProviderClient fusedLocationProviderClient;
     private Looper workerLooper;
     private Context context;
+    private LocationManager locationManager;
 
     public GpsLocationManager(Context context, Looper workerLooper) {
+        this.locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        this.context = context;
         this.workerLooper = workerLooper;
         this.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
     }
@@ -49,7 +53,16 @@ public class GpsLocationManager {
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, callback, workerLooper);
     }
 
-    public Location getLastLocation() throws SecurityException, InterruptedException, ExecutionException, TimeoutException, OutdatedLocationException {
+    public boolean isProviderEnbaled() {
+        boolean GPS = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        boolean NET = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        return GPS && NET;
+    }
+
+    public Location getLastLocation() throws SecurityException, InterruptedException, ExecutionException, TimeoutException, OutdatedLocationException, LocationProviderDisabledException {
+        /* Test if the provider is enabled */
+        if (!isProviderEnbaled())
+            throw new LocationProviderDisabledException();
         /* Query the availability of location */
         Task<LocationAvailability> taskAvailability = fusedLocationProviderClient.getLocationAvailability();
         /* Also query the location at the same time */
@@ -66,11 +79,14 @@ public class GpsLocationManager {
 
     public final static int permissionRequestCode = 5566;
 
-    public static void ensurePermissionGranted(Activity context) {
+    public static boolean checkPermissionGranted(Context context) {
         boolean perm1 = ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
         boolean perm2 = ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        return perm1 && perm2;
+    }
 
-        if (!(perm1 && perm2)) {
+    public static void ensurePermissionGranted(Activity context) {
+        if (!checkPermissionGranted(context)) {
             /* Request permission here */
             ActivityCompat.requestPermissions(context, new String[]{
                     Manifest.permission.ACCESS_FINE_LOCATION,
@@ -81,6 +97,11 @@ public class GpsLocationManager {
 
     public class OutdatedLocationException extends Throwable {
         public OutdatedLocationException() {
+        }
+    }
+
+    public class LocationProviderDisabledException extends Throwable {
+        public LocationProviderDisabledException() {
         }
     }
 }
