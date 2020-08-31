@@ -16,6 +16,16 @@ public class Managers {
     private Context context;
     private HandlerThread workerThread;
 
+    public Managers(Context context, HandlerThread workerThread) {
+        this.context = context;
+        this.workerThread = workerThread;
+        this.powerManager = new PowerManager(context);
+        this.preferenceManager = new PreferenceManager(context);
+        this.gpsLocationManager = new GpsLocationManager(context, workerThread.getLooper());
+        this.wirelessSignalManager = new WirelessSignalManager(context);
+        this.autoReportManager = new AutoReportManager(context, workerThread.getLooper(), gpsLocationManager, preferenceManager);
+    }
+
     public PowerManager getPowerManager() {
         return powerManager;
     }
@@ -40,14 +50,7 @@ public class Managers {
         return workerThread;
     }
 
-    public Managers(Context context, HandlerThread workerThread) {
-        this.context = context;
-        this.workerThread = workerThread;
-        this.powerManager = new PowerManager(context);
-        this.preferenceManager = new PreferenceManager(context);
-        this.gpsLocationManager = new GpsLocationManager(context, workerThread.getLooper());
-        this.wirelessSignalManager = new WirelessSignalManager(context);
-        this.autoReportManager = new AutoReportManager(context, workerThread.getLooper(), gpsLocationManager);
+    public AutoReportManager getAutoReportManager() {
+        return autoReportManager;
     }
-
 }

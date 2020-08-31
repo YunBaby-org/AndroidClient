@@ -18,21 +18,21 @@ import java.io.IOException;
 
 public class AutoReportManager {
 
-    private PreferenceManager pm;
-    private GpsLocationManager gpsLocationManager;
+    private PreferenceManager preferenceManager;
     private AmqpHandler amqpHandler;
     private Handler handler;
     private String trackerId;
+    private final static int AUTO_REPORT_MESSAGE_TAG = 0;
 
     /* TODO: Refactor this shitty code */
-    public AutoReportManager(Context context, Looper looper, GpsLocationManager gpsLocationManager) {
-        this.pm = new PreferenceManager(context);
-        this.trackerId = pm.getTrackerID();
+    public AutoReportManager(Context context, Looper looper, GpsLocationManager gpsLocationManager, PreferenceManager preferenceManager) {
+        this.preferenceManager = preferenceManager;
+        this.trackerId = this.preferenceManager.getTrackerID();
         this.handler = new Handler(looper) {
             @Override
             public void handleMessage(@NonNull Message msg) {
-                int reportInterval = pm.getReportInterval();
-                boolean isAutoReportEnabled = pm.getAutoReport();
+                int reportInterval = AutoReportManager.this.preferenceManager.getReportInterval();
+                boolean isAutoReportEnabled = AutoReportManager.this.preferenceManager.getAutoReport();
 
                 ensureAmqpHandler();
 
@@ -48,12 +48,25 @@ public class AutoReportManager {
                     }
                 }
 
-                this.sendEmptyMessageDelayed(0, reportInterval * 1000);
+                this.sendEmptyMessageDelayed(AutoReportManager.AUTO_REPORT_MESSAGE_TAG, getInterval());
             }
         };
 
         /* Send message after interval immediately */
-        handler.sendEmptyMessageDelayed(0, pm.getReportInterval() * 1000);
+        handler.sendEmptyMessageDelayed(AutoReportManager.AUTO_REPORT_MESSAGE_TAG, getInterval());
+    }
+
+    public void stop() {
+        handler.removeMessages(AutoReportManager.AUTO_REPORT_MESSAGE_TAG);
+    }
+
+    public void restart() {
+        handler.removeMessages(AutoReportManager.AUTO_REPORT_MESSAGE_TAG);
+        handler.sendEmptyMessageDelayed(AutoReportManager.AUTO_REPORT_MESSAGE_TAG, getInterval());
+    }
+
+    private int getInterval() {
+        return this.preferenceManager.getReportInterval() * 1000;
     }
 
     private void ensureAmqpHandler() {

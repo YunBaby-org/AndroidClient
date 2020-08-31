@@ -20,7 +20,6 @@ public class RequestSetAutoReport extends Request {
     @Override
     public JSONObject createResponse(Managers managers) {
         try {
-            /* TODO: Let the response effect immediately */
             managers.getPreferenceManager().setAutoReport(Enable);
             return createSuccessResponse(requestName);
         } catch (Exception e) {

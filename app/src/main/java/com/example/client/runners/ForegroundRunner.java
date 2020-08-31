@@ -3,9 +3,13 @@ package com.example.client.runners;
 import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 
 import com.example.client.manager.Managers;
+import com.example.client.manager.PreferenceManager;
 import com.google.android.gms.location.LocationRequest;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * The consumer logic for foreground service
@@ -38,9 +42,36 @@ public class ForegroundRunner implements Runnable {
         this.amqpConsumerThread = new Thread(new AmqpConsumerRunner(managers, trackerId));
         this.amqpConsumerThread.start();
 
+        /* Register listener to deal with preference changes */
+        /* TODO: handle the change operation of tracker id, or just forbid it */
+        PreferenceManager pm = this.managers.getPreferenceManager();
+        pm.registerListener(PreferenceManager.tagAutoReport, handlePreferenceChangeAutoReport());
+        pm.registerListener(PreferenceManager.tagReportInterval, handlePreferenceChangeReportInterval());
+
         /* Start receiving update from GPS & Wifi */
-        managers.getGpsLocationManager().setupLocationRequest(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, 30, null);
+        managers.getGpsLocationManager().setupLocationRequest(LocationRequest.PRIORITY_HIGH_ACCURACY, pm.getReportInterval(), null);
         managers.getWirelessSignalManager().setupWifiScanReceiver(null);
+    }
+
+    @NotNull
+    private PreferenceManager.OnPreferenceChangedListener handlePreferenceChangeReportInterval() {
+        return (preferenceManager, preference_tag) -> {
+            Log.d("ForegroundRunner", "Change report interval");
+            int interval = preferenceManager.getReportInterval();
+            managers.getGpsLocationManager().setupLocationRequest(LocationRequest.PRIORITY_HIGH_ACCURACY, interval, null);
+            this.managers.getAutoReportManager().restart();
+        };
+    }
+
+    @NotNull
+    private PreferenceManager.OnPreferenceChangedListener handlePreferenceChangeAutoReport() {
+        return (preferenceManager, preference_tag) -> {
+            Log.d("ForegroundRunner", "Change auto report");
+            if (preferenceManager.getAutoReport())
+                this.managers.getAutoReportManager().restart();
+            else
+                this.managers.getAutoReportManager().stop();
+        };
     }
 
 }

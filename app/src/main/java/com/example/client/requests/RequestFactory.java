@@ -11,7 +11,6 @@ public class RequestFactory {
     /* Since all the metadata get stripped during compilning? (maybe) */
     /* So We maintain a list of class instead :( */
     /* https://stackoverflow.com/questions/18377516/find-all-subclasses-of-a-given-class-android possible solution here but too lazy to copy paste it */
-    /* TODO: Consider implement Reflection or other approach to get subtype of Request */
     private static Class<? extends Request>[] classRequests = new Class[]{
             RequestGetDeviceStatus.class,
             RequestGetPowerStatus.class,

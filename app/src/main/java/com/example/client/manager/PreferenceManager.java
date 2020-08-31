@@ -5,7 +5,9 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PreferenceManager {
     public static final String tagTrackerID = "tracker-id";
@@ -16,17 +18,20 @@ public class PreferenceManager {
     public static final String preferenceTrackerDefaultName = "unknown";
 
     private Context context;
-    private List<HandlePreferenceChanges> preferenceTrackerIdObservers;
-    private List<HandlePreferenceChanges> preferenceAutoReportObservers;
-    private List<HandlePreferenceChanges> preferencePowerSavingObservers;
-    private List<HandlePreferenceChanges> preferenceReportIntervalObservers;
+
+    private Map<String, List<OnPreferenceChangedListener>> onPreferenceChangedListeners;
 
     public PreferenceManager(Context context) {
         this.context = context;
-        this.preferenceTrackerIdObservers = new ArrayList<>();
-        this.preferenceAutoReportObservers = new ArrayList<>();
-        this.preferencePowerSavingObservers = new ArrayList<>();
-        this.preferenceReportIntervalObservers = new ArrayList<>();
+        onPreferenceChangedListeners = new HashMap<>();
+
+    }
+
+    @Deprecated
+    public void setupListener() {
+        getSharedPreferences().registerOnSharedPreferenceChangeListener((sharedPreferences, s) -> {
+            triggerListener(s);
+        });
     }
 
     private SharedPreferences getSharedPreferences() {
@@ -36,7 +41,7 @@ public class PreferenceManager {
     /* TrackerID */
     public void setTrackerID(String trackerID) {
         getSharedPreferences().edit().putString(tagTrackerID, trackerID).apply();
-        triggerPreferenceChanges(tagTrackerID, preferenceTrackerIdObservers);
+        triggerListener(tagTrackerID);
     }
     public String getTrackerID() {
         return getSharedPreferences().getString(tagTrackerID, preferenceTrackerDefaultName);
@@ -45,7 +50,7 @@ public class PreferenceManager {
     /* AutoReport */
     public void setAutoReport(boolean value) {
         getSharedPreferences().edit().putBoolean(tagAutoReport, value).apply();
-        triggerPreferenceChanges(tagAutoReport, preferenceAutoReportObservers);
+        triggerListener(tagAutoReport);
     }
     public boolean getAutoReport() {
         return getSharedPreferences().getBoolean(tagAutoReport, true);
@@ -56,7 +61,7 @@ public class PreferenceManager {
         if (value < 5)
             throw new ArithmeticException("The value of report interval cannot less than 5");
         getSharedPreferences().edit().putInt(tagReportInterval, value).apply();
-        triggerPreferenceChanges(tagReportInterval, preferenceReportIntervalObservers);
+        triggerListener(tagReportInterval);
     }
     public int getReportInterval() {
         return getSharedPreferences().getInt(tagReportInterval, 30);
@@ -65,57 +70,36 @@ public class PreferenceManager {
     /* PowerSaving */
     public void setPowerSaving(boolean value) {
         getSharedPreferences().edit().putBoolean(tagPowerSaving, value).apply();
-        triggerPreferenceChanges(tagPowerSaving, preferencePowerSavingObservers);
+        triggerListener(tagPowerSaving);
     }
 
     public boolean getPowerSaving() {
         return getSharedPreferences().getBoolean(tagPowerSaving, false);
     }
 
-    public interface HandlePreferenceChanges {
-        void onHandlePreferenceChanges(String changedPreferenceTag);
+    public void registerListener(String preference_tag, OnPreferenceChangedListener listener) {
+        if (!onPreferenceChangedListeners.containsKey(preference_tag))
+            onPreferenceChangedListeners.put(preference_tag, new ArrayList<>());
+        onPreferenceChangedListeners.get(preference_tag).add(listener);
     }
 
-    public void registerPreferenceChanges(String preference_tag, HandlePreferenceChanges observer) {
-        switch (preference_tag) {
-            case tagTrackerID:
-                preferenceTrackerIdObservers.add(observer);
-                break;
-            case tagAutoReport:
-                preferenceAutoReportObservers.add(observer);
-                break;
-            case tagReportInterval:
-                preferenceReportIntervalObservers.add(observer);
-                break;
-            case tagPowerSaving:
-                preferencePowerSavingObservers.add(observer);
-                break;
-            default:
-                Log.e("PreferenceManager", "Unknown preference tag : " + preference_tag);
+    public void unregisterListener(String preference_tag, OnPreferenceChangedListener listener) {
+        if (onPreferenceChangedListeners.containsKey(preference_tag))
+            onPreferenceChangedListeners.get(preference_tag).remove(listener);
+        else
+            Log.e("PreferenceManager", "No such listener");
+    }
+
+    public void triggerListener(String preference_tag) {
+        List<OnPreferenceChangedListener> listeners = onPreferenceChangedListeners.get(preference_tag);
+        if (listeners != null) {
+            for (OnPreferenceChangedListener listener : listeners)
+                listener.onPreferenceChanged(this, preference_tag);
         }
     }
 
-    public void unregisterPreferenceChanges(String preference_tag, HandlePreferenceChanges observer) {
-        switch (preference_tag) {
-            case tagTrackerID:
-                preferenceTrackerIdObservers.remove(observer);
-                break;
-            case tagAutoReport:
-                preferenceAutoReportObservers.remove(observer);
-                break;
-            case tagReportInterval:
-                preferenceReportIntervalObservers.remove(observer);
-                break;
-            case tagPowerSaving:
-                preferencePowerSavingObservers.remove(observer);
-                break;
-            default:
-                Log.e("PreferenceManager", "Unknown preference tag : " + preference_tag);
-        }
+    public interface OnPreferenceChangedListener {
+        void onPreferenceChanged(PreferenceManager preferenceManager, String preference_tag);
     }
 
-    private void triggerPreferenceChanges(String tag, List<HandlePreferenceChanges> list) {
-        for (HandlePreferenceChanges observer : list)
-            observer.onHandlePreferenceChanges(tag);
-    }
 }
