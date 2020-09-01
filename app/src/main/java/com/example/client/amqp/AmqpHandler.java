@@ -2,6 +2,7 @@ package com.example.client.amqp;
 
 import android.util.Log;
 
+import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.CancelCallback;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DeliverCallback;
@@ -122,8 +123,17 @@ public class AmqpHandler {
     }
 
     public void publishMessage(String exchange, String routingKey, JSONObject message) throws IOException {
+        AMQP.BasicProperties properties = new AMQP.BasicProperties.Builder()
+                .contentEncoding("UTF8")
+                .contentType("application/json")
+                .deliveryMode(2) /* Persistent */
+                .build();
+        publishMessage(exchange, routingKey, message, properties);
+    }
+
+    public void publishMessage(String exchange, String routingKey, JSONObject message, AMQP.BasicProperties messageProperty) throws IOException {
         if (this.amqpChannel.isOpen())
-            this.amqpChannel.basicPublish(exchange, routingKey, null, message.toString().getBytes(StandardCharsets.UTF_8));
+            this.amqpChannel.basicPublish(exchange, routingKey, messageProperty, message.toString().getBytes(StandardCharsets.UTF_8));
         else
             throw new IOException("Disconnected");
     }
