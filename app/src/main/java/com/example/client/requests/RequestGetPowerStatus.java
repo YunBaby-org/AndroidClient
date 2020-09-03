@@ -9,6 +9,7 @@ import org.json.JSONObject;
 public class RequestGetPowerStatus extends Request {
     @Override
     public void parseFromJSON(JSONObject request) throws JSONException, InvalidRequestFormatException {
+        id = request.getString("id");
         requestName = request.getString("Request");
         if (!requestName.equals("GetPowerStatus"))
             throw new InvalidRequestFormatException("Failed to parse such request");
@@ -24,11 +25,11 @@ public class RequestGetPowerStatus extends Request {
             result.put("CapacityLevel", powerManager.getBatteryLevel());
 
             /* Create the object */
-            return Request.createSuccessResponse(requestName, result);
+            return createSuccessResponse(requestName, result);
 
         } catch (Exception e) {
             e.printStackTrace();
-            return Request.createFailedResponse(requestName, "Internal Error");
+            return createFailedResponse(requestName, "Internal Error");
         }
     }
 }

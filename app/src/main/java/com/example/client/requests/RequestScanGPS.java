@@ -9,6 +9,7 @@ import com.example.client.manager.Managers;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
@@ -16,10 +17,12 @@ public class RequestScanGPS extends Request {
 
     public RequestScanGPS() {
         this.requestName = "ScanGPS";
+        this.id = UUID.randomUUID().toString();
     }
 
     @Override
     public void parseFromJSON(JSONObject request) throws InvalidRequestFormatException, JSONException {
+        id = request.getString("id");
         requestName = request.getString("Request");
         if (!requestName.equals("ScanGPS"))
             throw new InvalidRequestFormatException("Failed to parse such request");

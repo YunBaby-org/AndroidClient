@@ -8,6 +8,7 @@ import org.json.JSONObject;
 public class RequestGetDeviceStatus extends Request {
     @Override
     public void parseFromJSON(JSONObject request) throws InvalidRequestFormatException, JSONException {
+        id = request.getString("id");
         requestName = request.getString("Request");
         if (!requestName.equals("GetDeviceStatus"))
             throw new InvalidRequestFormatException("Failed to parse such request");
@@ -21,10 +22,10 @@ public class RequestGetDeviceStatus extends Request {
             result.put("AutoReport", managers.getPreferenceManager().getAutoReport());
             result.put("ReportInterval", managers.getPreferenceManager().getReportInterval());
             result.put("PowerSaving", managers.getPreferenceManager().getPowerSaving());
-            return Request.createSuccessResponse(requestName, result);
+            return createSuccessResponse(requestName, result);
         } catch (Exception e) {
             e.printStackTrace();
-            return Request.createFailedResponse(requestName, "InternalError");
+            return createFailedResponse(requestName, "InternalError");
         }
     }
 }

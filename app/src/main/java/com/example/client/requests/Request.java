@@ -10,6 +10,8 @@ import org.json.JSONObject;
 public abstract class Request {
 
     protected String requestName;
+    /* TODO: check the length of id before sending  */
+    protected String id;
 
     public String getName() {
         return requestName;
@@ -36,7 +38,7 @@ public abstract class Request {
      * @param responseType Which type of request the response respond to
      * @return The response JSON object
      */
-    protected static JSONObject createSuccessResponse(String responseType) {
+    protected JSONObject createSuccessResponse(String responseType) {
         return createSuccessResponse(responseType, null, false);
     }
 
@@ -47,7 +49,7 @@ public abstract class Request {
      * @param payload      The payload of response
      * @return The response JSON object
      */
-    protected static JSONObject createSuccessResponse(String responseType, JSONObject payload) {
+    protected JSONObject createSuccessResponse(String responseType, JSONObject payload) {
         return createSuccessResponse(responseType, payload, false);
     }
 
@@ -59,10 +61,11 @@ public abstract class Request {
      * @param withTimestamp Add timestamp to response
      * @return The response JSON object
      */
-    protected static JSONObject createSuccessResponse(String responseType, JSONObject payload, boolean withTimestamp) {
+    protected JSONObject createSuccessResponse(String responseType, JSONObject payload, boolean withTimestamp) {
         JSONObject response = new JSONObject();
         try {
             response.put("Response", responseType);
+            response.put("id", id);
             response.put("Status", "Success");
             if (payload != null)
                 response.put("Result", payload);
@@ -81,10 +84,11 @@ public abstract class Request {
      * @param reason       The reason
      * @return The response JSON object
      */
-    protected static JSONObject createFailedResponse(String responseType, String reason) {
+    protected JSONObject createFailedResponse(String responseType, String reason) {
         JSONObject response = new JSONObject();
         try {
             response.put("Response", responseType);
+            response.put("id", id);
             response.put("Status", "Failed");
             response.put("Info", reason);
         } catch (JSONException e) {

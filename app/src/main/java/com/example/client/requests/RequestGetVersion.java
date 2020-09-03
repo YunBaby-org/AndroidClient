@@ -13,6 +13,7 @@ import java.util.Locale;
 public class RequestGetVersion extends Request {
     @Override
     public void parseFromJSON(JSONObject request) throws JSONException, InvalidRequestFormatException {
+        id = request.getString("id");
         requestName = request.getString("Request");
         if (!requestName.equals("GetVersion"))
             throw new InvalidRequestFormatException("Failed to parse such request");

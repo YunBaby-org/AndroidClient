@@ -14,6 +14,7 @@ public class RequestScanWifiSignal extends Request {
 
     @Override
     public void parseFromJSON(JSONObject request) throws InvalidRequestFormatException, JSONException {
+        id = request.getString("id");
         requestName = request.getString("Request");
         if (!requestName.equals("ScanWifiSignal"))
             throw new InvalidRequestFormatException("Failed to parse such request");

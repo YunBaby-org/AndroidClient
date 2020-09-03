@@ -124,7 +124,7 @@ public class AmqpHandler {
 
     public void publishMessage(String exchange, String routingKey, JSONObject message) throws IOException {
         AMQP.BasicProperties properties = new AMQP.BasicProperties.Builder()
-                .contentEncoding("UTF8")
+                .contentEncoding("UTF-8")
                 .contentType("application/json")
                 .deliveryMode(2) /* Persistent */
                 .build();
