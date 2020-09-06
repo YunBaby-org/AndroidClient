@@ -66,6 +66,7 @@ public abstract class Request {
         try {
             response.put("Response", responseType);
             response.put("id", id);
+            response.put("timestamp", System.currentTimeMillis() / 1000);
             response.put("Status", "Success");
             if (payload != null)
                 response.put("Result", payload);
@@ -89,6 +90,7 @@ public abstract class Request {
         try {
             response.put("Response", responseType);
             response.put("id", id);
+            response.put("timestamp", System.currentTimeMillis() / 1000);
             response.put("Status", "Failed");
             response.put("Info", reason);
         } catch (JSONException e) {

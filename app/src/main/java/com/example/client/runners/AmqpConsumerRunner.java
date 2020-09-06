@@ -33,6 +33,7 @@ public class AmqpConsumerRunner implements Runnable {
     public void run() {
         /* As long as the thread is not interrupted, we keep running and bring amqp channel & connection back if it breaks. */
         while (!Thread.interrupted()) {
+            /* TODO: There is a bug, when disconnected, multiple amqpHandler will be create */
             try {
                 if (amqpHandler == null || !amqpHandler.getAmqpChannel().isOpen()) {
                     amqpHandler = new AmqpHandler(trackerId);
