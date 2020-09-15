@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeoutException;
 
 /* This class create a AMQP consumer */
 /* It must run on different thread */
@@ -73,6 +74,10 @@ public class AmqpHandler {
     public void consume(OnConsumedCallback callback) throws IOException {
         amqpChannel.basicQos(AmqpHandler.AMQP_CONSUMER_PREFETCH_LIMIT);
         amqpChannel.basicConsume(AmqpHandler.getQueueNameByTrackerId(trackerId), false, getDeliverCallback(callback), getCancelCallback());
+    }
+
+    public void stop() throws IOException, TimeoutException {
+        this.amqpChannel.close();
     }
 
     /**

@@ -8,9 +8,10 @@ import android.widget.Button;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.client.manager.GpsLocationManager;
 import com.example.client.manager.PreferenceManager;
-import com.example.client.services.ForegroundService;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -55,6 +56,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (PreferenceManager.isRegistered(this))
+            gotoTrackerDashboard();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (result != null) {
@@ -82,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         Thread thread = new Thread(() -> {
             try {
                 /* e04 e04 e04 專題要做不完了，我還不寫糞 code */
-                String authentication_code = (String) new JSONObject(response).get("authentication_code");
+                String authentication_code = response; // (String) new JSONObject(response).get("authentication_code");
                 Log.i("MainActivity", authentication_code);
                 OkHttpClient client = new OkHttpClient();
                 String server_site = getString(R.string.server_site);
@@ -115,22 +123,32 @@ public class MainActivity extends AppCompatActivity {
             JSONObject object = new JSONObject(rawCredentials);
             PreferenceManager pm = new PreferenceManager(this);
             String refreshToken = object.getJSONObject("payload").getString("refresh_token");
+            extractJWT(object.getJSONObject("payload").getString("access_token"));
             pm.setRefreshToken(refreshToken);
             pm.setRegistered(true);
             Log.i("MainActivity", "Refresh token set");
+            gotoTrackerDashboard();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void startService() {
-        Intent intent = new Intent(MainActivity.this, ForegroundService.class);
-        startService(intent);
+    private void extractJWT(String jwt) {
+        DecodedJWT decoded = JWT.decode(jwt);
+        Log.i("JWT", "sub: " + decoded.getSubject());
+        Log.i("JWT", "aud: " + decoded.getAudience());
+        Log.i("JWT", "iat: " + decoded.getIssuedAt());
+        Log.i("JWT", "exp: " + decoded.getExpiresAt());
+        Log.i("JWT", "jti: " + decoded.getId());
+        PreferenceManager pm = new PreferenceManager(this);
+        Log.i("MainActivity", "Set trackerId as " + decoded.getSubject());
+        pm.setTrackerID(decoded.getSubject());
     }
 
-    public void stopService() {
-        Intent intent = new Intent(MainActivity.this, ForegroundService.class);
-        stopService(intent);
+    private void gotoTrackerDashboard() {
+        Intent intent = new Intent(this, TrackerDashboardActivity.class);
+        finish();
+        startActivity(intent);
     }
 
     private class NoCameraActivityException extends Throwable {

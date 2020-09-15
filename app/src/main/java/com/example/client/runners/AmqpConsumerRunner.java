@@ -17,6 +17,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeoutException;
 
 public class AmqpConsumerRunner implements Runnable {
 
@@ -45,12 +46,16 @@ public class AmqpConsumerRunner implements Runnable {
                 e.printStackTrace();
                 Log.e("AmqpConsumerRunner", "AMQP consumer crashes");
             }
-            if (Thread.interrupted()) break;
-
             try {
                 Thread.sleep(3000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Log.e("AmqpConsumerRunner", "Attempts to stop AmqpConsumerRunner");
+                try {
+                    amqpHandler.stop();
+                } catch (IOException | TimeoutException ex) {
+                    ex.printStackTrace();
+                }
+                break;
             }
         }
     }

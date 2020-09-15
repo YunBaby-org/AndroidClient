@@ -15,6 +15,7 @@ import com.example.client.requests.RequestScanGPS;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 public class AutoReportManager {
 
@@ -58,6 +59,16 @@ public class AutoReportManager {
 
     public void stop() {
         handler.removeMessages(AutoReportManager.AUTO_REPORT_MESSAGE_TAG);
+    }
+
+    public void remove_every_thing() {
+        this.stop();
+        try {
+            if (amqpHandler != null)
+                amqpHandler.stop();
+        } catch (IOException | TimeoutException e) {
+            e.printStackTrace();
+        }
     }
 
     public void restart() {

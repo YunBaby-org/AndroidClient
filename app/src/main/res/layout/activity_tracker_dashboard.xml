@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    tools:context=".TrackerDashboardActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="match_parent"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/gotham"
+                android:textColor="@color/colorAccent"
+                android:textSize="16sp"
+                android:layout_marginLeft="5px"
+                android:text="TrackerID: " />
+
+            <TextView
+                android:id="@+id/textviewTrackerID"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/gotham"
+                android:textColor="@color/colorAccent"
+                android:textSize="16sp"
+                android:text="[Your ID goes here]" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/buttonAppSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5px"
+            android:layout_marginBottom="5px"
+            android:text="設定" />
+
+        <Button
+            android:id="@+id/buttonEnableService"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5px"
+            android:layout_marginBottom="5px"
+            android:text="啟動服務" />
+
+        <Button
+            android:id="@+id/buttonDisableService"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5px"
+            android:layout_marginBottom="5px"
+            android:text="關閉服務" />
+
+        <Button
+            android:id="@+id/buttonUnregisterTracker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5px"
+            android:layout_marginBottom="5px"
+            android:text="移除平安服" />
+
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -40,14 +40,22 @@ public class PreferenceManager {
         return context.getSharedPreferences(preferenceFileName, Context.MODE_PRIVATE);
     }
 
+    private static SharedPreferences getSharedPreferences(Context context) {
+        return context.getSharedPreferences(preferenceFileName, Context.MODE_PRIVATE);
+    }
+
     /* Is Registered */
     public void setRegistered(boolean val) {
         getSharedPreferences().edit().putBoolean(tagRegistered, val).apply();
         triggerListener(tagRegistered);
     }
 
-    public String isRegistered() {
-        return getSharedPreferences().getString(tagRefreshToken, "");
+    public boolean isRegistered() {
+        return getSharedPreferences().getBoolean(tagRegistered, false);
+    }
+
+    public static boolean isRegistered(Context context) {
+        return getSharedPreferences(context).getBoolean(tagRegistered, false);
     }
 
     /* Refresh Token */
@@ -56,14 +64,15 @@ public class PreferenceManager {
         triggerListener(tagRefreshToken);
     }
 
-    public String getRefreshToken() {
-        return getSharedPreferences().getString(tagRefreshToken, "");
-    }
 
     /* TrackerID */
     public void setTrackerID(String trackerID) {
         getSharedPreferences().edit().putString(tagTrackerID, trackerID).apply();
         triggerListener(tagTrackerID);
+    }
+
+    public static String getTagTrackerID(Context context) {
+        return getSharedPreferences(context).getString(tagRefreshToken, "");
     }
 
     public String getTrackerID() {

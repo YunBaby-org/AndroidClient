@@ -11,6 +11,9 @@ import com.google.android.gms.location.LocationRequest;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
+
 /**
  * The consumer logic for foreground service
  */
@@ -51,6 +54,27 @@ public class ForegroundRunner implements Runnable {
         /* Start receiving update from GPS & Wifi */
         managers.getGpsLocationManager().setupLocationRequest(LocationRequest.PRIORITY_HIGH_ACCURACY, pm.getReportInterval(), null);
         managers.getWirelessSignalManager().setupWifiScanReceiver(null);
+
+        while (true) {
+            try {
+                Thread.sleep(100000);
+            } catch (InterruptedException e) {
+                Log.i("ForegroundRunner", "Attempts to stop");
+                try {
+                    managers.fire_wall_these_managers();
+                } catch (IOException | TimeoutException ex) {
+                    ex.printStackTrace();
+                    Log.e("ForegroundRunner", "Cannot stop it owowo.");
+                }
+                workThread.quit();
+                amqpConsumerThread.interrupt();
+                workThread = null;
+                amqpConsumerThread = null;
+                managers = null;
+                break;
+            }
+            Log.i("ForegroundRunner", "alive");
+        }
     }
 
     @NotNull

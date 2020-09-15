@@ -29,6 +29,7 @@ public class GpsLocationManager {
 
     private FusedLocationProviderClient fusedLocationProviderClient;
     private Looper workerLooper;
+    private LocationCallback callback;
     private Context context;
     private LocationManager locationManager;
 
@@ -39,8 +40,12 @@ public class GpsLocationManager {
         this.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
     }
 
+    public void stop() {
+        fusedLocationProviderClient.removeLocationUpdates(callback);
+    }
+
     public void setupLocationRequest(int accuracy, int intervalSecond, @Nullable LocationCallback innerCallback) throws SecurityException {
-        LocationCallback callback = new LocationCallback() {
+        callback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 if (innerCallback != null)

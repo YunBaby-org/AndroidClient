@@ -59,6 +59,11 @@ public class ForegroundService extends Service {
         }
     }
 
+    @Override
+    public boolean stopService(Intent name) {
+        return super.stopService(name);
+    }
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -67,6 +72,8 @@ public class ForegroundService extends Service {
 
     @Override
     public void onDestroy() {
+        Log.i("ForegroundRunner", "Attempts to stop service thread.");
+        this.serviceThread.interrupt();
         super.onDestroy();
     }
 }

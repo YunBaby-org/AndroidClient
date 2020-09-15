@@ -19,6 +19,7 @@ public class WirelessSignalManager {
     private WifiManager wifiManager;
     private static final long WIRELESS_SCANNING_REFRESH_THRESHOLD = 60 * 1000;
     private long lastWirelessScanning = 0;
+    private BroadcastReceiver broadcastReceiver;
 
     public WirelessSignalManager(Context context) {
         this.context = context;
@@ -35,21 +36,29 @@ public class WirelessSignalManager {
         context.registerReceiver(callback, intentFilter);
     }
 
+    public void stop() {
+        context.unregisterReceiver(getWirelessScanResultReceiver(null));
+    }
+
     @NotNull
     private BroadcastReceiver getWirelessScanResultReceiver(@Nullable BroadcastReceiver innerCallback) {
-        return new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                boolean success = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false);
-                if (success) {
-                    lastWirelessScanning = System.currentTimeMillis();
-                    if (innerCallback != null)
-                        innerCallback.onReceive(context, intent);
-                } else {
-                    Log.e("WirelessScanning", "Failed to scan requests");
+        /* TODO: Fix the potential race condition here */
+        if (broadcastReceiver == null) {
+            broadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    boolean success = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false);
+                    if (success) {
+                        lastWirelessScanning = System.currentTimeMillis();
+                        if (innerCallback != null)
+                            innerCallback.onReceive(context, intent);
+                    } else {
+                        Log.e("WirelessScanning", "Failed to scan requests");
+                    }
                 }
-            }
-        };
+            };
+        }
+        return broadcastReceiver;
     }
 
     public WirelessScanResult getWirelessScanResult() throws OutdatedWirelessResult, WirelessScanFailure {
