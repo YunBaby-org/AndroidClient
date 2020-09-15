@@ -6,4 +6,6 @@
     <string name="notification_channel_name">Foreground Service</string>
     <string name="notification_channel_description">失智症老人追蹤平安符</string>
     <string name="foreground_service_tracking_title">平安符追蹤中</string>
+    <string name="textHandleRegisterationHint">登入關護網站後，請申請平安符的新 QR Code，接著對著 QR Code 拍攝</string>
+    <string name="server_site">192.168.0.3</string>
 </resources>

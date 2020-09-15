@@ -11,8 +11,10 @@ import java.util.Map;
 
 public class PreferenceManager {
     public static final String tagTrackerID = "tracker-id";
+    public static final String tagRegistered = "registered";
     public static final String tagAutoReport = "auto-report";
     public static final String tagPowerSaving = "power-saving";
+    public static final String tagRefreshToken = "refresh-token";
     public static final String tagReportInterval = "report-interval";
     public static final String preferenceFileName = "com.example.client.preference-file";
     public static final String preferenceTrackerDefaultName = "unknown";
@@ -38,11 +40,32 @@ public class PreferenceManager {
         return context.getSharedPreferences(preferenceFileName, Context.MODE_PRIVATE);
     }
 
+    /* Is Registered */
+    public void setRegistered(boolean val) {
+        getSharedPreferences().edit().putBoolean(tagRegistered, val).apply();
+        triggerListener(tagRegistered);
+    }
+
+    public String isRegistered() {
+        return getSharedPreferences().getString(tagRefreshToken, "");
+    }
+
+    /* Refresh Token */
+    public void setRefreshToken(String refreshToken) {
+        getSharedPreferences().edit().putString(tagRefreshToken, refreshToken).apply();
+        triggerListener(tagRefreshToken);
+    }
+
+    public String getRefreshToken() {
+        return getSharedPreferences().getString(tagRefreshToken, "");
+    }
+
     /* TrackerID */
     public void setTrackerID(String trackerID) {
         getSharedPreferences().edit().putString(tagTrackerID, trackerID).apply();
         triggerListener(tagTrackerID);
     }
+
     public String getTrackerID() {
         return getSharedPreferences().getString(tagTrackerID, preferenceTrackerDefaultName);
     }
