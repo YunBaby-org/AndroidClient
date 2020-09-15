@@ -1,0 +1,28 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/messages_header">
+
+        <EditTextPreference
+            app:key="amqp-hostname"
+            app:title="@string/amqp_hostname_hint"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            app:key="amqp-port"
+            app:title="@string/amqp_port_hint"
+            app:defaultValue="5432"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="平安符">
+
+        <EditTextPreference
+            app:key="tracker-id"
+            app:title="平安符編號"
+            app:useSimpleSummaryProvider="true"
+            app:selectable="false" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

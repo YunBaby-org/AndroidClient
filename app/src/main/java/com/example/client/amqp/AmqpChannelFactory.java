@@ -11,6 +11,8 @@ import java.util.concurrent.TimeoutException;
 
 public class AmqpChannelFactory {
 
+    public static final String AMQP_DEFAULT_HOSTNAME = "192.168.0.3";
+
     /* The singleton instance */
     private static AmqpChannelFactory instance;
 
@@ -31,17 +33,26 @@ public class AmqpChannelFactory {
 
     /* Constructor */
     private AmqpChannelFactory() {
+        factory = null;
+    }
+
+    public void start(ConnectionSetting settings) {
         factory = new ConnectionFactory();
-        factory.setHost("192.168.0.3");
-        factory.setVirtualHost("/");
-        factory.setRequestedHeartbeat(10);
-        factory.setNetworkRecoveryInterval(5000);
-        factory.setConnectionTimeout(5000);
-        factory.setUsername("guest");
-        factory.setPassword("guest");
+        factory.setHost(settings.amqpHostname);
+        factory.setPort(settings.amqpPort);
+        factory.setVirtualHost(settings.amqpVhost);
+        factory.setUsername(settings.amqpUsername);
+        factory.setPassword(settings.amqpPassword);
         /* We will handle the recovery */
         factory.setTopologyRecoveryEnabled(false);
         factory.setAutomaticRecoveryEnabled(false);
+        factory.setRequestedHeartbeat(10);
+        factory.setNetworkRecoveryInterval(5000);
+        factory.setConnectionTimeout(5000);
+    }
+
+    public void stop() {
+        /* Guess what, there is no way you can stop the factory from running */
     }
 
     public synchronized boolean ensureConnected() {
@@ -62,6 +73,46 @@ public class AmqpChannelFactory {
     public Channel createChannel() throws IOException {
         Log.d("AmqpChannelFactory", "Create new channel");
         return amqpConnection.createChannel();
+    }
+
+    public static class ConnectionSetting {
+
+        public String amqpHostname;
+        public int amqpPort;
+        public String amqpVhost;
+        public String amqpUsername;
+        public String amqpPassword;
+
+        public ConnectionSetting setPort(int port) {
+            this.amqpPort = port;
+            return this;
+        }
+
+        public ConnectionSetting setHostname(String hostname) {
+            this.amqpHostname = hostname;
+            return this;
+        }
+
+        public ConnectionSetting setVhost(String vhost) {
+            this.amqpVhost = vhost;
+            return this;
+        }
+
+        public ConnectionSetting setPassword(String password) {
+            this.amqpPassword = password;
+            return this;
+        }
+
+        public ConnectionSetting setUsername(String username) {
+            return setUsername(username, "tracker");
+        }
+
+        public ConnectionSetting setUsername(String username, String audience) {
+            this.amqpUsername = String.format("%s:%s", username, audience);
+            return this;
+        }
+
+
     }
 
 }

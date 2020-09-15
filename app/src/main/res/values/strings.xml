@@ -7,5 +7,14 @@
     <string name="notification_channel_description">失智症老人追蹤平安符</string>
     <string name="foreground_service_tracking_title">平安符追蹤中</string>
     <string name="textHandleRegisterationHint">登入關護網站後，請申請平安符的新 QR Code，接著對著 QR Code 拍攝</string>
-    <string name="server_site">192.168.0.3</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <!-- Preference Titles -->
+    <string name="messages_header">AMQP</string>
+
+    <!-- Messages Preferences -->
+    <string name="amqp_hostname_hint">AMQP 伺服器地址</string>
+    <string name="amqp_port_hint">AMQP 服務器 Port</string>
+    <string name="defaultHttpServer">192.168.0.3</string>
+
 </resources>

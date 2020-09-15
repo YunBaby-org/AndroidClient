@@ -5,14 +5,23 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 
+import com.example.client.amqp.AmqpChannelFactory;
 import com.example.client.manager.Managers;
 import com.example.client.manager.PreferenceManager;
 import com.google.android.gms.location.LocationRequest;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /**
  * The consumer logic for foreground service
@@ -34,9 +43,26 @@ public class ForegroundRunner implements Runnable {
 
     @Override
     public void run() {
+        PreferenceManager pm = new PreferenceManager(context);
+
         /* Setup worker thread */
         this.workThread = new HandlerThread("Worker Thread");
         this.workThread.start();
+
+        /* Init amqp factory */
+        try {
+            AmqpChannelFactory.getInstance().start(new AmqpChannelFactory.ConnectionSetting()
+                    .setHostname(pm.getAmqpHostname())
+                    .setUsername(pm.getTrackerID())
+                    .setPassword(obtainAccessToken(pm.getAmqpHostname(), pm.getRefreshToken()))
+                    .setPort(pm.getAmqpPort())
+                    .setVhost("/")
+            );
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            Log.e("ForegroundService", "Interrupted");
+            return;
+        }
 
         /* Manager */
         this.managers = new Managers(context, workThread);
@@ -46,18 +72,17 @@ public class ForegroundRunner implements Runnable {
         this.amqpConsumerThread.start();
 
         /* Register listener to deal with preference changes */
-        /* TODO: handle the change operation of tracker id, or just forbid it */
-        PreferenceManager pm = this.managers.getPreferenceManager();
         pm.registerListener(PreferenceManager.tagAutoReport, handlePreferenceChangeAutoReport());
         pm.registerListener(PreferenceManager.tagReportInterval, handlePreferenceChangeReportInterval());
 
+        /* TODO: handle the change operation of tracker id, or just forbid it */
         /* Start receiving update from GPS & Wifi */
         managers.getGpsLocationManager().setupLocationRequest(LocationRequest.PRIORITY_HIGH_ACCURACY, pm.getReportInterval(), null);
         managers.getWirelessSignalManager().setupWifiScanReceiver(null);
 
         while (true) {
             try {
-                Thread.sleep(100000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 Log.i("ForegroundRunner", "Attempts to stop");
                 try {
@@ -71,6 +96,7 @@ public class ForegroundRunner implements Runnable {
                 workThread = null;
                 amqpConsumerThread = null;
                 managers = null;
+                AmqpChannelFactory.getInstance().stop();
                 break;
             }
             Log.i("ForegroundRunner", "alive");
@@ -96,6 +122,34 @@ public class ForegroundRunner implements Runnable {
             else
                 this.managers.getAutoReportManager().stop();
         };
+    }
+
+    private String obtainAccessToken(String hostname, String refresh_token) throws InterruptedException {
+        /* 重複執行這個過程，說真的如果沒有取得可用的 Access token，你什麼都不能做 ... */
+        while (true) {
+            try {
+                OkHttpClient client = new OkHttpClient();
+                Request request = null;
+                request = new Request.Builder()
+                        .url(String.format("http://%s/api/v1/mobile/trackers/tokens", hostname))
+                        .patch(createRequestPayload(refresh_token))
+                        .build();
+                Response httpResponse = client.newCall(request).execute();
+                String result = httpResponse.body().string();
+                Log.i("ForegroundRunner", result);
+                return new JSONObject(result).getJSONObject("payload").getString("access_token");
+            } catch (JSONException | IOException e) {
+                e.printStackTrace();
+                Log.e("ForegroundRunner", "Failed to obtain refresh token");
+            }
+            Thread.sleep(3000);
+        }
+    }
+
+    private RequestBody createRequestPayload(String refresh_token) throws JSONException {
+        JSONObject object = new JSONObject();
+        object.put("refresh_token", refresh_token);
+        return RequestBody.create(object.toString(), MediaType.parse("application/json; charset=utf-8"));
     }
 
 }

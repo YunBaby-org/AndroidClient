@@ -37,11 +37,15 @@ public class WirelessSignalManager {
     }
 
     public void stop() {
-        context.unregisterReceiver(getWirelessScanResultReceiver(null));
+        try {
+            context.unregisterReceiver(getWirelessScanResultReceiver(null));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @NotNull
-    private BroadcastReceiver getWirelessScanResultReceiver(@Nullable BroadcastReceiver innerCallback) {
+    public BroadcastReceiver getWirelessScanResultReceiver(@Nullable BroadcastReceiver innerCallback) {
         /* TODO: Fix the potential race condition here */
         if (broadcastReceiver == null) {
             broadcastReceiver = new BroadcastReceiver() {

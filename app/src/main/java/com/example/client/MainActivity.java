@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.example.client.amqp.AmqpChannelFactory;
 import com.example.client.manager.GpsLocationManager;
 import com.example.client.manager.PreferenceManager;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -40,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initializePreferences();
+
         /* Hook up views */
         this.buttonStartRegistration = findViewById(R.id.buttonStartRegistration);
 
@@ -48,11 +51,16 @@ public class MainActivity extends AppCompatActivity {
             handleRegistration();
         });
 
-
         /* Ensure we have the location permission */
         GpsLocationManager.ensurePermissionGranted(this);
 
         /* TODO: Check if the location setting is enabled */
+    }
+
+    public void initializePreferences() {
+        PreferenceManager pm = new PreferenceManager(this);
+        if (!pm.getSharedPreferences().contains(PreferenceManager.tagAmqpHostname))
+            pm.setAmqpHostname(AmqpChannelFactory.AMQP_DEFAULT_HOSTNAME);
     }
 
     @Override
@@ -87,13 +95,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void handleRegistration2(String response) {
         /* Send HTTP request to obtain credentials */
+        PreferenceManager pm = new PreferenceManager(this);
         Thread thread = new Thread(() -> {
             try {
-                /* e04 e04 e04 專題要做不完了，我還不寫糞 code */
                 String authentication_code = response; // (String) new JSONObject(response).get("authentication_code");
                 Log.i("MainActivity", authentication_code);
                 OkHttpClient client = new OkHttpClient();
-                String server_site = getString(R.string.server_site);
+                String server_site = pm.getAmqpHostname();
                 Request request = new Request.Builder()
                         .url(String.format("http://%s/api/v1/mobile/trackers/tokens", server_site))
                         .post(createRequestPayload(authentication_code))

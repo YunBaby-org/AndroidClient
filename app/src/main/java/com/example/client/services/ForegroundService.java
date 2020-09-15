@@ -76,5 +76,6 @@ public class ForegroundService extends Service {
         this.serviceThread.interrupt();
         super.onDestroy();
     }
+
 }
 

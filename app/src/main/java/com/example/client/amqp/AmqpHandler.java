@@ -46,6 +46,7 @@ public class AmqpHandler {
      */
     private void initializeChannel(int retries, int baseInterval) throws Exception {
 
+        /* TODO: sometime the connection leaked */
         Exception lastError = null;
 
         for (int i = 0, interval = baseInterval; i < retries; i++) {

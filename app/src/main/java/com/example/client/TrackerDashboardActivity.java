@@ -32,6 +32,10 @@ public class TrackerDashboardActivity extends AppCompatActivity {
         buttonAppSettings = findViewById(R.id.buttonAppSettings);
         buttonUnregisterTracker = findViewById(R.id.buttonUnregisterTracker);
 
+        buttonAppSettings.setOnClickListener((view) -> {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+        });
         buttonEnableService.setOnClickListener((view) -> {
             startService();
         });

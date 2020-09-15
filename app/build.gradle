@@ -45,6 +45,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services:12.0.1'
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.auth0:java-jwt:3.10.3'
+    implementation 'androidx.preference:preference:1.1.1'
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.json:json:20200518'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'

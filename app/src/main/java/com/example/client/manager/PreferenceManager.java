@@ -4,19 +4,23 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.example.client.amqp.AmqpChannelFactory;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class PreferenceManager {
+    public static final String tagAmqpHostname = "amqp-hostname";
+    public static final String tagAmqpPort = "amqp-port";
     public static final String tagTrackerID = "tracker-id";
     public static final String tagRegistered = "registered";
     public static final String tagAutoReport = "auto-report";
     public static final String tagPowerSaving = "power-saving";
     public static final String tagRefreshToken = "refresh-token";
     public static final String tagReportInterval = "report-interval";
-    public static final String preferenceFileName = "com.example.client.preference-file";
+    public static final String preferenceFileName = "com.example.client._preferences";
     public static final String preferenceTrackerDefaultName = "unknown";
 
     private Context context;
@@ -26,7 +30,6 @@ public class PreferenceManager {
     public PreferenceManager(Context context) {
         this.context = context;
         onPreferenceChangedListeners = new HashMap<>();
-
     }
 
     @Deprecated
@@ -36,13 +39,25 @@ public class PreferenceManager {
         });
     }
 
-    private SharedPreferences getSharedPreferences() {
-        return context.getSharedPreferences(preferenceFileName, Context.MODE_PRIVATE);
+    public SharedPreferences getSharedPreferences() {
+        return androidx.preference.PreferenceManager.getDefaultSharedPreferences(context);
+        // return context.getSharedPreferences(preferenceFileName, Context.MODE_PRIVATE);
     }
 
     private static SharedPreferences getSharedPreferences(Context context) {
-        return context.getSharedPreferences(preferenceFileName, Context.MODE_PRIVATE);
+        return androidx.preference.PreferenceManager.getDefaultSharedPreferences(context);
+        // return context.getSharedPreferences(preferenceFileName, Context.MODE_PRIVATE);
     }
+
+    public void setAmqpHostname(String hostname) {
+        getSharedPreferences().edit().putString(tagAmqpHostname, hostname).apply();
+        triggerListener(tagRegistered);
+    }
+
+    public String getAmqpHostname() {
+        return getSharedPreferences().getString(tagAmqpHostname, AmqpChannelFactory.AMQP_DEFAULT_HOSTNAME);
+    }
+
 
     /* Is Registered */
     public void setRegistered(boolean val) {
@@ -64,6 +79,18 @@ public class PreferenceManager {
         triggerListener(tagRefreshToken);
     }
 
+    public String getRefreshToken() {
+        return getSharedPreferences().getString(tagRefreshToken, "");
+    }
+
+    public void setAmqpPort(int port) {
+        getSharedPreferences().edit().putInt(tagAmqpPort, port).apply();
+        triggerListener(tagRefreshToken);
+    }
+
+    public int getAmqpPort() {
+        return Integer.parseInt(getSharedPreferences(context).getString(tagAmqpPort, "5672"));
+    }
 
     /* TrackerID */
     public void setTrackerID(String trackerID) {
@@ -74,6 +101,7 @@ public class PreferenceManager {
     public static String getTagTrackerID(Context context) {
         return getSharedPreferences(context).getString(tagRefreshToken, "");
     }
+
 
     public String getTrackerID() {
         return getSharedPreferences().getString(tagTrackerID, preferenceTrackerDefaultName);
@@ -129,6 +157,7 @@ public class PreferenceManager {
                 listener.onPreferenceChanged(this, preference_tag);
         }
     }
+
 
     public interface OnPreferenceChangedListener {
         void onPreferenceChanged(PreferenceManager preferenceManager, String preference_tag);
