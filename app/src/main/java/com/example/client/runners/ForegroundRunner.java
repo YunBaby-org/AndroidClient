@@ -15,7 +15,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.concurrent.TimeoutException;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -43,64 +42,80 @@ public class ForegroundRunner implements Runnable {
 
     @Override
     public void run() {
-        PreferenceManager pm = new PreferenceManager(context);
-
-        /* Setup worker thread */
-        this.workThread = new HandlerThread("Worker Thread");
-        this.workThread.start();
-
-        /* Init amqp factory */
-        try {
-            AmqpChannelFactory.getInstance().start(new AmqpChannelFactory.ConnectionSetting()
-                    .setHostname(pm.getAmqpHostname())
-                    .setUsername(pm.getTrackerID())
-                    .setPassword(obtainAccessToken(pm.getAmqpHostname(), pm.getRefreshToken()))
-                    .setPort(pm.getAmqpPort())
-                    .setVhost("/")
-            );
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            Log.e("ForegroundService", "Interrupted");
-            return;
-        }
-
-        /* Manager */
-        this.managers = new Managers(context, workThread);
-
-        /* Setup AMQP consumer thread */
-        this.amqpConsumerThread = new Thread(new AmqpConsumerRunner(managers, trackerId));
-        this.amqpConsumerThread.start();
-
-        /* Register listener to deal with preference changes */
-        pm.registerListener(PreferenceManager.tagAutoReport, handlePreferenceChangeAutoReport());
-        pm.registerListener(PreferenceManager.tagReportInterval, handlePreferenceChangeReportInterval());
-
-        /* TODO: handle the change operation of tracker id, or just forbid it */
-        /* Start receiving update from GPS & Wifi */
-        managers.getGpsLocationManager().setupLocationRequest(LocationRequest.PRIORITY_HIGH_ACCURACY, pm.getReportInterval(), null);
-        managers.getWirelessSignalManager().setupWifiScanReceiver(null);
-
         while (true) {
+            PreferenceManager pm = new PreferenceManager(context);
+
+            /* Setup worker thread */
+            this.workThread = new HandlerThread("Worker Thread");
+            this.workThread.start();
+
+            /* Init amqp factory */
             try {
-                Thread.sleep(1000);
+                AmqpChannelFactory.getInstance().start(new AmqpChannelFactory.ConnectionSetting()
+                        .setHostname(pm.getAmqpHostname())
+                        .setUsername(pm.getTrackerID())
+                        .setPassword(obtainAccessToken(pm.getAmqpHostname(), pm.getRefreshToken()))
+                        .setPort(pm.getAmqpPort())
+                        .setVhost("/")
+                );
             } catch (InterruptedException e) {
-                Log.i("ForegroundRunner", "Attempts to stop");
-                try {
-                    managers.fire_wall_these_managers();
-                } catch (IOException | TimeoutException ex) {
-                    ex.printStackTrace();
-                    Log.e("ForegroundRunner", "Cannot stop it owowo.");
-                }
-                workThread.quit();
-                amqpConsumerThread.interrupt();
-                workThread = null;
-                amqpConsumerThread = null;
-                managers = null;
-                AmqpChannelFactory.getInstance().stop();
-                break;
+                e.printStackTrace();
+                Log.e("ForegroundService", "Interrupted");
+                return;
             }
-            Log.i("ForegroundRunner", "alive");
+
+            /* Manager */
+            this.managers = new Managers(context, workThread);
+
+            /* Setup AMQP consumer thread */
+            this.amqpConsumerThread = new Thread(new AmqpConsumerRunner(managers, trackerId));
+            this.amqpConsumerThread.start();
+
+            /* Register listener to deal with preference changes */
+            pm.registerListener(PreferenceManager.tagAutoReport, handlePreferenceChangeAutoReport());
+            pm.registerListener(PreferenceManager.tagReportInterval, handlePreferenceChangeReportInterval());
+
+            /* TODO: handle the change operation of tracker id, or just forbid it */
+            /* Start receiving update from GPS & Wifi */
+            managers.getGpsLocationManager().setupLocationRequest(LocationRequest.PRIORITY_HIGH_ACCURACY, pm.getReportInterval(), null);
+            managers.getWirelessSignalManager().setupWifiScanReceiver(null);
+
+            while (true) {
+                try {
+                    Thread.sleep(1000);
+
+                    if (!amqpConsumerThread.isAlive())
+                        throw new Exception("Amqp Consumer Thread stopped");
+                    if (!workThread.isAlive())
+                        throw new Exception("Worker Thread stopped");
+                } catch (Exception e) {
+                    Log.i("ForegroundRunner", "Attempts to restart foreground runner");
+                    try {
+                        stop_runner();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                        Log.e("ForegroundRunner", "Failed to stop foreground runner");
+                        /* Commit suicide because the app is about to break anyway */
+                        // android.os.Process.killProcess(android.os.Process.myPid());
+                    }
+                    break;
+                }
+                Log.i("ForegroundRunner", "alive");
+            }
         }
+    }
+
+    private void stop_runner() throws IOException {
+        managers.fire_wall_these_managers();
+        managers = null;
+        workThread.quit();
+        workThread = null;
+        amqpConsumerThread.interrupt();
+        amqpConsumerThread = null;
+    }
+
+    private void restart_connection(String host, String token) throws InterruptedException {
+        AmqpChannelFactory.getInstance().restart_with_password(obtainAccessToken(host, token));
     }
 
     @NotNull

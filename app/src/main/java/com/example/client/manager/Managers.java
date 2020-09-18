@@ -4,9 +4,6 @@ import android.content.Context;
 import android.os.HandlerThread;
 import android.util.Log;
 
-import java.io.IOException;
-import java.util.concurrent.TimeoutException;
-
 /**
  * This is a super super class that provider a bunch of functionality.
  * Consumed request will create its response with the help of all these managers
@@ -30,7 +27,7 @@ public class Managers {
         this.autoReportManager = new AutoReportManager(context, workerThread.getLooper(), gpsLocationManager, preferenceManager);
     }
 
-    public void fire_wall_these_managers() throws IOException, TimeoutException {
+    public void fire_wall_these_managers() {
         Log.e("Managers", "Wireless Signal Manager");
         wirelessSignalManager.stop();
         Log.e("Managers", "GPS Location Manager");

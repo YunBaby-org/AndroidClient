@@ -64,7 +64,7 @@ public class AutoReportManager {
     public void remove_every_thing() {
         this.stop();
         try {
-            if (amqpHandler != null)
+            if (amqpHandler != null && amqpHandler.getAmqpChannel().isOpen())
                 amqpHandler.stop();
         } catch (IOException | TimeoutException e) {
             e.printStackTrace();

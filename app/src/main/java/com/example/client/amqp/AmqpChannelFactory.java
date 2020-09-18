@@ -33,11 +33,11 @@ public class AmqpChannelFactory {
 
     /* Constructor */
     private AmqpChannelFactory() {
-        factory = null;
+        factory = new ConnectionFactory();
+        amqpConnection = null;
     }
 
     public void start(ConnectionSetting settings) {
-        factory = new ConnectionFactory();
         factory.setHost(settings.amqpHostname);
         factory.setPort(settings.amqpPort);
         factory.setVirtualHost(settings.amqpVhost);
@@ -49,10 +49,29 @@ public class AmqpChannelFactory {
         factory.setRequestedHeartbeat(10);
         factory.setNetworkRecoveryInterval(5000);
         factory.setConnectionTimeout(5000);
+        ensureConnected();
     }
 
-    public void stop() {
+    public void restart_with_password(String password) {
+        if (amqpConnection != null) {
+            try {
+                if (amqpConnection.isOpen())
+                    amqpConnection.close(10);
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e("AmqpChannelFactory", "Connection close timeout, force abort");
+                amqpConnection.abort();
+            }
+            amqpConnection = null;
+        }
+        factory.setPassword(password);
+        ensureConnected();
+    }
+
+    public void close() throws IOException {
         /* Guess what, there is no way you can stop the factory from running */
+        amqpConnection.close();
+        amqpConnection = null;
     }
 
     public synchronized boolean ensureConnected() {

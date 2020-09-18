@@ -33,31 +33,39 @@ public class AmqpConsumerRunner implements Runnable {
     @Override
     public void run() {
         /* As long as the thread is not interrupted, we keep running and bring amqp channel & connection back if it breaks. */
+        Log.i("AmqpConsumerRunner", "Running");
         while (!Thread.interrupted()) {
             /* TODO: There is a bug, when disconnected, multiple amqpHandler will be create */
             try {
-                if (amqpHandler == null || !amqpHandler.getAmqpChannel().isOpen()) {
+                if (amqpHandler == null) {
                     amqpHandler = new AmqpHandler(trackerId);
                     amqpHandler.getAmqpChannel().addShutdownListener(createShutdownListener());
                     amqpHandler.consume(getCallback());
                     Log.w("AmqpConsumerRunner", "Setup new consumer");
                 }
+                if (!amqpHandler.getAmqpChannel().isOpen()) {
+                    amqpHandler = null;
+                    break;
+                }
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.e("AmqpConsumerRunner", "AMQP consumer crashes");
+                Thread.currentThread().interrupt();
             }
             try {
                 Thread.sleep(3000);
             } catch (InterruptedException e) {
                 Log.e("AmqpConsumerRunner", "Attempts to stop AmqpConsumerRunner");
                 try {
-                    amqpHandler.stop();
+                    if (amqpHandler != null && amqpHandler.getAmqpChannel().isOpen())
+                        amqpHandler.stop();
                 } catch (IOException | TimeoutException ex) {
                     ex.printStackTrace();
+                    break;
                 }
-                break;
             }
         }
+        Log.w("AmqpConsumerRunner", "Exit Loop");
     }
 
     @NotNull
