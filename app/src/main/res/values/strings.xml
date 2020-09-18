@@ -16,5 +16,8 @@
     <string name="amqp_hostname_hint">AMQP 伺服器地址</string>
     <string name="amqp_port_hint">AMQP 服務器 Port</string>
     <string name="defaultHttpServer">192.168.0.3</string>
+    <string name="main_activity_tracker_registration_cancelled">平安符註冊中斷</string>
+    <string name="main_activity_tracker_registartion_please_wait">處理中，請稍候...</string>
+    <string name="main_activity_tracker_registration_successful">平安符註冊成功</string>
 
 </resources>
