@@ -61,6 +61,7 @@ public class ForegroundService extends Service {
 
     @Override
     public boolean stopService(Intent name) {
+        this.serviceThread.interrupt();
         return super.stopService(name);
     }
 

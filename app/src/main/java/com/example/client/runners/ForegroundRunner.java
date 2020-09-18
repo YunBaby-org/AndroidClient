@@ -42,7 +42,8 @@ public class ForegroundRunner implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
+        boolean stopForegroundRunner = false;
+        while (!stopForegroundRunner) {
             PreferenceManager pm = new PreferenceManager(context);
 
             /* Setup worker thread */
@@ -92,6 +93,7 @@ public class ForegroundRunner implements Runnable {
                     Log.i("ForegroundRunner", "Attempts to restart foreground runner");
                     try {
                         stop_runner();
+                        stopForegroundRunner = true;
                     } catch (IOException ex) {
                         ex.printStackTrace();
                         Log.e("ForegroundRunner", "Failed to stop foreground runner");

@@ -43,6 +43,7 @@ public class TrackerDashboardActivity extends AppCompatActivity {
             stopService();
         });
         buttonUnregisterTracker.setOnClickListener((view) -> {
+            stopService();
             removeCredentials();
         });
     }
