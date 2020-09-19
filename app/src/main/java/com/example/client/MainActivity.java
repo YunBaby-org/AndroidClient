@@ -9,8 +9,7 @@ import android.widget.Button;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.interfaces.DecodedJWT;
+import com.auth0.android.jwt.JWT;
 import com.example.client.amqp.AmqpChannelFactory;
 import com.example.client.manager.GpsLocationManager;
 import com.example.client.manager.PreferenceManager;
@@ -151,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void extractJWT(String jwt) {
-        DecodedJWT decoded = JWT.decode(jwt);
+        JWT decoded = new JWT(jwt);
         Log.i("JWT", "sub: " + decoded.getSubject());
         Log.i("JWT", "aud: " + decoded.getAudience());
         Log.i("JWT", "iat: " + decoded.getIssuedAt());
