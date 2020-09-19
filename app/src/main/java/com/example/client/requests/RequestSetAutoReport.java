@@ -3,6 +3,7 @@ package com.example.client.requests;
 import android.util.Log;
 
 import com.example.client.manager.Managers;
+import com.example.client.services.ForegroundService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,9 +32,11 @@ public class RequestSetAutoReport extends Request {
             switch (Target) {
                 case GPS:
                     managers.getPreferenceManager().setAutoReportGps(Enable);
+                    ForegroundService.emitEvent(ForegroundService.EventLevel.Info, "GPS自動回報 " + (Enable ? "開啟" : "關閉"));
                     break;
                 case WIFI:
                     managers.getPreferenceManager().setAutoReportWifi(Enable);
+                    ForegroundService.emitEvent(ForegroundService.EventLevel.Info, "Wifi自動回報" + (Enable ? "開啟" : "關閉"));
                     break;
                 default:
                     Log.wtf("RequestSetReportInterval", "Unknown target");

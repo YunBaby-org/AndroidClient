@@ -8,6 +8,7 @@ import android.util.Log;
 import com.example.client.amqp.AmqpChannelFactory;
 import com.example.client.manager.Managers;
 import com.example.client.manager.PreferenceManager;
+import com.example.client.services.ForegroundService;
 import com.google.android.gms.location.LocationRequest;
 
 import org.jetbrains.annotations.NotNull;
@@ -44,6 +45,7 @@ public class ForegroundRunner implements Runnable {
     public void run() {
         boolean stopForegroundRunner = false;
         while (!stopForegroundRunner) {
+            ForegroundService.emitEvent(ForegroundService.EventLevel.Info, "啟動服務");
             PreferenceManager pm = new PreferenceManager(context);
 
             /* Setup worker thread */
@@ -59,6 +61,7 @@ public class ForegroundRunner implements Runnable {
                         .setPort(pm.getAmqpPort())
                         .setVhost("/")
                 );
+                ForegroundService.emitEvent(ForegroundService.EventLevel.Info, "取得登入憑證");
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 Log.e("ForegroundService", "Interrupted");
@@ -82,15 +85,21 @@ public class ForegroundRunner implements Runnable {
             managers.getGpsLocationManager().setupLocationRequest(LocationRequest.PRIORITY_HIGH_ACCURACY, pm.getReportIntervalGps(), null);
             managers.getWirelessSignalManager().setupWifiScanReceiver(null);
 
+            ForegroundService.emitEvent(ForegroundService.EventLevel.Info, "準備完成");
             while (true) {
                 try {
                     Thread.sleep(1000);
 
-                    if (!amqpConsumerThread.isAlive())
+                    if (!amqpConsumerThread.isAlive()) {
+                        ForegroundService.emitEvent(ForegroundService.EventLevel.Error, "AMQP 連線異常，嘗試回復連線...");
                         throw new Exception("Amqp Consumer Thread stopped");
-                    if (!workThread.isAlive())
+                    }
+                    if (!workThread.isAlive()) {
+                        ForegroundService.emitEvent(ForegroundService.EventLevel.Error, "Worker 異常，嘗試回復狀態...");
                         throw new Exception("Worker Thread stopped");
+                    }
                 } catch (Exception e) {
+                    ForegroundService.emitEvent(ForegroundService.EventLevel.Error, "回收資源");
                     Log.i("ForegroundRunner", "Attempts to restart foreground runner");
                     try {
                         stop_runner();
@@ -101,6 +110,7 @@ public class ForegroundRunner implements Runnable {
                         /* Commit suicide because the app is about to break anyway */
                         // android.os.Process.killProcess(android.os.Process.myPid());
                     }
+                    ForegroundService.emitEvent(ForegroundService.EventLevel.Error, "嘗試重啟服務");
                     break;
                 }
                 Log.i("ForegroundRunner", "alive");
@@ -174,6 +184,7 @@ public class ForegroundRunner implements Runnable {
             } catch (JSONException | IOException e) {
                 e.printStackTrace();
                 Log.e("ForegroundRunner", "Failed to obtain refresh token");
+                ForegroundService.emitEvent(ForegroundService.EventLevel.Error, "無法與伺服器驗證");
             }
             Thread.sleep(3000);
         }

@@ -3,6 +3,7 @@ package com.example.client.requests;
 import android.util.Log;
 
 import com.example.client.manager.Managers;
+import com.example.client.services.ForegroundService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,15 +32,18 @@ public class RequestSetReportInterval extends Request {
             switch (Target) {
                 case GPS:
                     managers.getPreferenceManager().setReportIntervalGps(interval);
+                    ForegroundService.emitEvent(ForegroundService.EventLevel.Info, "更新 GPS 回報間隔為 " + interval);
                     break;
                 case WIFI:
                     managers.getPreferenceManager().setReportIntervalWifi(interval);
+                    ForegroundService.emitEvent(ForegroundService.EventLevel.Info, "更新 Wifi 回報間隔為 " + interval);
                     break;
                 default:
                     Log.wtf("RequestSetReportInterval", "Unknown target");
+                    throw new InvalidPayloadException();
             }
             return createSuccessResponse(requestName);
-        } catch (ArithmeticException e) {
+        } catch (ArithmeticException | InvalidPayloadException e) {
             return createFailedResponse(requestName, "Invalid Payload");
         } catch (Exception e) {
             return createFailedResponse(requestName, "Internal Error");
@@ -48,5 +52,8 @@ public class RequestSetReportInterval extends Request {
 
     public enum TargetType {
         GPS, WIFI
+    }
+
+    private class InvalidPayloadException extends Throwable {
     }
 }

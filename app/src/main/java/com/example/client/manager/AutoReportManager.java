@@ -7,10 +7,12 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.client.R;
 import com.example.client.amqp.AmqpHandler;
 import com.example.client.amqp.AmqpUtility;
 import com.example.client.requests.RequestScanGPS;
 import com.example.client.requests.RequestScanWifiSignal;
+import com.example.client.services.ForegroundService;
 
 import org.json.JSONObject;
 
@@ -78,6 +80,7 @@ public class AutoReportManager {
             ensureAmqpHandler().publishMessage("tracker-event", AmqpUtility.getResponseRoutingKey(trackerId, response), response);
             Log.d("AutoReportManager", "Auto Report Current GPS Location");
 
+            ForegroundService.emitEvent(ForegroundService.EventLevel.Info, R.string.event_description_auto_report_gps);
         }
         /* Next pending operation */
         handler.sendEmptyMessageDelayed(AutoReportManager.AUTO_REPORT_GPS_MESSAGE_TYPE, getIntervalGps());
@@ -87,7 +90,7 @@ public class AutoReportManager {
         if (preferenceManager.getAutoReportWifi()) {
             wirelessSignalManager.invokeScanning();
             Log.d("AutoReportManager", "Initiate wireless scanning request");
-
+            ForegroundService.emitEvent(ForegroundService.EventLevel.Info, R.string.event_description_auto_report_scan_surrounding_wifi);
         }
         Message message = new Message();
         message.what = AUTO_REPORT_WIFI_MESSAGE_TYPE_GET_RESULT;
@@ -110,6 +113,7 @@ public class AutoReportManager {
 
                 /* Send it */
                 ensureAmqpHandler().publishMessage("tracker-event", AmqpUtility.getResponseRoutingKey(trackerId, response), response);
+                ForegroundService.emitEvent(ForegroundService.EventLevel.Info, R.string.event_description_auto_report_send_wifi_signals);
                 Log.d("AutoReportManager", "Auto Report Surrounding Wifi Signals");
 
                 /* Keep the cycle going */

@@ -26,6 +26,7 @@ public class PreferenceManager {
     public static final String tagReportIntervalGps = "report-interval-gps";
     public static final String tagReportIntervalWifi = "report-interval-wifi";
 
+    public static final String tagServerAutoRestart = "service-auto-restart";
     public static final String tagPowerSaving = "power-saving";
     public static final String tagRefreshToken = "refresh-token";
     public static final String preferenceTrackerDefaultName = "unknown";
@@ -54,6 +55,23 @@ public class PreferenceManager {
     private static SharedPreferences getSharedPreferences(Context context) {
         return androidx.preference.PreferenceManager.getDefaultSharedPreferences(context);
         // return context.getSharedPreferences(preferenceFileName, Context.MODE_PRIVATE);
+    }
+
+    public void setServiceAutoRestart(boolean value) {
+        getSharedPreferences().edit().putBoolean(tagServerAutoRestart, value).apply();
+        triggerListener(tagServerAutoRestart);
+    }
+
+    public static void setServiceAutoRestart(Context context, boolean value) {
+        getSharedPreferences(context).edit().putBoolean(tagServerAutoRestart, value).apply();
+    }
+
+    public boolean getServiceAutoRestart() {
+        return getSharedPreferences().getBoolean(tagServerAutoRestart, true);
+    }
+
+    public static boolean getServiceAutoRestart(Context context) {
+        return getSharedPreferences(context).getBoolean(tagServerAutoRestart, true);
     }
 
     public void setAmqpHostname(String hostname) {
