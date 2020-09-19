@@ -17,7 +17,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.TimeoutException;
 
 public class AmqpConsumerRunner implements Runnable {
 
@@ -59,7 +58,7 @@ public class AmqpConsumerRunner implements Runnable {
                 try {
                     if (amqpHandler != null && amqpHandler.getAmqpChannel().isOpen())
                         amqpHandler.stop();
-                } catch (IOException | TimeoutException ex) {
+                } catch (IOException ex) {
                     ex.printStackTrace();
                     break;
                 }

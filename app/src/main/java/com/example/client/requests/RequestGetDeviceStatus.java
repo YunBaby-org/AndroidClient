@@ -19,8 +19,10 @@ public class RequestGetDeviceStatus extends Request {
         try {
             JSONObject result = new JSONObject();
             result.put("TrackerID", managers.getPreferenceManager().getTrackerID());
-            result.put("AutoReport", managers.getPreferenceManager().getAutoReport());
-            result.put("ReportInterval", managers.getPreferenceManager().getReportInterval());
+            result.put("AutoReportGps", managers.getPreferenceManager().getAutoReportGps());
+            result.put("ReportIntervalGps", managers.getPreferenceManager().getReportIntervalGps());
+            result.put("AutoReportWifi", managers.getPreferenceManager().getAutoReportWifi());
+            result.put("ReportIntervalWifi", managers.getPreferenceManager().getReportIntervalWifi());
             result.put("PowerSaving", managers.getPreferenceManager().getPowerSaving());
             return createSuccessResponse(requestName, result);
         } catch (Exception e) {

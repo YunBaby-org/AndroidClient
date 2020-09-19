@@ -17,7 +17,7 @@ public class WirelessSignalManager {
 
     private Context context;
     private WifiManager wifiManager;
-    private static final long WIRELESS_SCANNING_REFRESH_THRESHOLD = 60 * 1000;
+    private static final long WIRELESS_SCANNING_REFRESH_THRESHOLD = 30 * 1000;
     private long lastWirelessScanning = 0;
     private BroadcastReceiver broadcastReceiver;
 
@@ -65,22 +65,33 @@ public class WirelessSignalManager {
         return broadcastReceiver;
     }
 
-    public WirelessScanResult getWirelessScanResult() throws OutdatedWirelessResult, WirelessScanFailure {
+    public void invokeScanning() throws WirelessScanFailure {
         if (!wifiManager.startScan())
             throw new WirelessScanFailure();
+    }
+
+    public WirelessScanResult tryGetWirelessScanResult() {
+        long lastScanTime = lastWirelessScanning;
+        if ((System.currentTimeMillis() - lastScanTime) <= WIRELESS_SCANNING_REFRESH_THRESHOLD)
+            return new WirelessScanResult(wifiManager.getScanResults(), lastScanTime);
+        else
+            return null;
+    }
+
+    public WirelessScanResult getWirelessScanResult() throws OutdatedWirelessResult, WirelessScanFailure, InterruptedException {
+        invokeScanning();
 
         /* Sleep for a while hope we got the result */
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        for (int i = 0; i < 5; i++) {
+            Thread.sleep(1000);
+
+            /* Only accept result within the specific window time */
+            long lastScanTime = lastWirelessScanning;
+            if ((System.currentTimeMillis() - lastScanTime) <= WIRELESS_SCANNING_REFRESH_THRESHOLD) {
+                return new WirelessScanResult(wifiManager.getScanResults(), lastScanTime);
+            }
         }
 
-        /* Only accept result within the specific window time */
-        long lastScanTime = lastWirelessScanning;
-        if ((System.currentTimeMillis() - lastScanTime) <= WIRELESS_SCANNING_REFRESH_THRESHOLD) {
-            return new WirelessScanResult(wifiManager.getScanResults(), lastScanTime);
-        }
 
         throw new OutdatedWirelessResult();
     }

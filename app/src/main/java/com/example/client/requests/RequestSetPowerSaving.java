@@ -24,4 +24,5 @@ public class RequestSetPowerSaving extends Request {
         /* TODO: Implement this method if you like */
         return createFailedResponse(requestName, "Request Not Supported");
     }
+
 }

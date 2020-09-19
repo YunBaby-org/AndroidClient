@@ -13,6 +13,7 @@ public class AmqpUtility {
         } catch (JSONException e) {
             e.printStackTrace();
             Log.wtf("AmqpUtility", "This should never happened, check if the response has Response header");
+            Log.d("AmqpUtility", response.toString());
             return String.format("tracker.%s.event.respond.unknown", trackerId);
         }
     }

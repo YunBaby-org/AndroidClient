@@ -77,8 +77,13 @@ public class AmqpHandler {
         amqpChannel.basicConsume(AmqpHandler.getQueueNameByTrackerId(trackerId), false, getDeliverCallback(callback), getCancelCallback());
     }
 
-    public void stop() throws IOException, TimeoutException {
-        this.amqpChannel.close();
+    public void stop() throws IOException {
+        try {
+            this.amqpChannel.close();
+        } catch (IOException | TimeoutException e) {
+            e.printStackTrace();
+            this.amqpChannel.abort();
+        }
     }
 
     /**

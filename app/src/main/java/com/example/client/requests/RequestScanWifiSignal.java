@@ -6,11 +6,19 @@ import android.util.Log;
 import com.example.client.manager.Managers;
 import com.example.client.manager.WirelessSignalManager;
 
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.UUID;
+
 public class RequestScanWifiSignal extends Request {
+
+    public RequestScanWifiSignal() {
+        this.requestName = "ScanWifiSignal";
+        this.id = UUID.randomUUID().toString();
+    }
 
     @Override
     public void parseFromJSON(JSONObject request) throws InvalidRequestFormatException, JSONException {
@@ -22,8 +30,12 @@ public class RequestScanWifiSignal extends Request {
 
     @Override
     public JSONObject createResponse(Managers managers) {
+        return createResponse(managers.getWirelessSignalManager(), null);
+    }
+
+    public JSONObject createResponse(WirelessSignalManager wirelessSignalManager, @Nullable WirelessSignalManager.WirelessScanResult pre_result) {
         try {
-            WirelessSignalManager.WirelessScanResult wirelessScanResult = managers.getWirelessSignalManager().getWirelessScanResult();
+            WirelessSignalManager.WirelessScanResult wirelessScanResult = pre_result != null ? pre_result : wirelessSignalManager.getWirelessScanResult();
 
             /* Create JSON result */
             JSONObject result = new JSONObject();

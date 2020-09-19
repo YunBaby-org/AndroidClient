@@ -16,11 +16,18 @@ public class PreferenceManager {
     public static final String tagAmqpPort = "amqp-port";
     public static final String tagTrackerID = "tracker-id";
     public static final String tagRegistered = "registered";
+
+    @Deprecated
     public static final String tagAutoReport = "auto-report";
+    public static final String tagAutoReportGps = "auto-report-gps";
+    public static final String tagAutoReportWifi = "auto-report-wifi";
+    @Deprecated
+    public static final String tagReportInterval = "report-interval";
+    public static final String tagReportIntervalGps = "report-interval-gps";
+    public static final String tagReportIntervalWifi = "report-interval-wifi";
+
     public static final String tagPowerSaving = "power-saving";
     public static final String tagRefreshToken = "refresh-token";
-    public static final String tagReportInterval = "report-interval";
-    public static final String preferenceFileName = "com.example.client._preferences";
     public static final String preferenceTrackerDefaultName = "unknown";
 
     private Context context;
@@ -108,23 +115,65 @@ public class PreferenceManager {
     }
 
     /* AutoReport */
+    @Deprecated
     public void setAutoReport(boolean value) {
-        getSharedPreferences().edit().putBoolean(tagAutoReport, value).apply();
-        triggerListener(tagAutoReport);
+        setAutoReportGps(value);
     }
+
+    public void setAutoReportGps(boolean value) {
+        getSharedPreferences().edit().putBoolean(tagAutoReportGps, value).apply();
+        triggerListener(tagAutoReportGps);
+    }
+
+    public void setAutoReportWifi(boolean value) {
+        getSharedPreferences().edit().putBoolean(tagAutoReportWifi, value).apply();
+        triggerListener(tagAutoReportWifi);
+    }
+
+    @Deprecated
     public boolean getAutoReport() {
-        return getSharedPreferences().getBoolean(tagAutoReport, true);
+        return getAutoReportGps();
+    }
+
+    public boolean getAutoReportGps() {
+        return getSharedPreferences().getBoolean(tagAutoReportGps, true);
+    }
+
+    public boolean getAutoReportWifi() {
+        return getSharedPreferences().getBoolean(tagAutoReportWifi, true);
     }
 
     /* ReportInterval */
+    @Deprecated
     public void setReportInterval(int value) throws ArithmeticException {
+        setReportIntervalGps(value);
+    }
+
+    public void setReportIntervalGps(int value) throws ArithmeticException {
         if (value < 5)
             throw new ArithmeticException("The value of report interval cannot less than 5");
-        getSharedPreferences().edit().putInt(tagReportInterval, value).apply();
-        triggerListener(tagReportInterval);
+        getSharedPreferences().edit().putInt(tagReportIntervalGps, value).apply();
+        triggerListener(tagReportIntervalGps);
     }
+
+    public void setReportIntervalWifi(int value) throws ArithmeticException {
+        if (value < 10)
+            throw new ArithmeticException("The value of report interval cannot less than 10");
+        getSharedPreferences().edit().putInt(tagReportIntervalWifi, value).apply();
+        triggerListener(tagReportIntervalWifi);
+    }
+
+    @Deprecated
     public int getReportInterval() {
-        return getSharedPreferences().getInt(tagReportInterval, 30);
+        return getReportIntervalGps();
+    }
+
+    public int getReportIntervalGps() {
+        return getSharedPreferences().getInt(tagReportIntervalGps, 30);
+    }
+
+    public int getReportIntervalWifi() {
+        return getSharedPreferences().getInt(tagReportIntervalWifi, 30);
     }
 
     /* PowerSaving */

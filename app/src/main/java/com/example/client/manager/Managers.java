@@ -24,7 +24,7 @@ public class Managers {
         this.preferenceManager = new PreferenceManager(context);
         this.gpsLocationManager = new GpsLocationManager(context, workerThread.getLooper());
         this.wirelessSignalManager = new WirelessSignalManager(context);
-        this.autoReportManager = new AutoReportManager(context, workerThread.getLooper(), gpsLocationManager, preferenceManager);
+        this.autoReportManager = new AutoReportManager(workerThread.getLooper(), gpsLocationManager, wirelessSignalManager, preferenceManager);
     }
 
     public void fire_wall_these_managers() {
@@ -33,7 +33,7 @@ public class Managers {
         Log.e("Managers", "GPS Location Manager");
         gpsLocationManager.stop();
         Log.e("Managers", "Stop AutoReport Manager");
-        autoReportManager.remove_every_thing();
+        autoReportManager.releaseResources();
     }
 
     public PowerManager getPowerManager() {

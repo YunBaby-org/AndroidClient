@@ -73,12 +73,13 @@ public class ForegroundRunner implements Runnable {
             this.amqpConsumerThread.start();
 
             /* Register listener to deal with preference changes */
-            pm.registerListener(PreferenceManager.tagAutoReport, handlePreferenceChangeAutoReport());
-            pm.registerListener(PreferenceManager.tagReportInterval, handlePreferenceChangeReportInterval());
+            pm.registerListener(PreferenceManager.tagAutoReportGps, handlePreferenceChangeAutoReportGps());
+            pm.registerListener(PreferenceManager.tagReportIntervalGps, handlePreferenceChangeReportIntervalGps());
+            pm.registerListener(PreferenceManager.tagAutoReportWifi, handlePreferenceChangeAutoReportWifi());
+            pm.registerListener(PreferenceManager.tagReportIntervalWifi, handlePreferenceChangeReportIntervalWifi());
 
-            /* TODO: handle the change operation of tracker id, or just forbid it */
             /* Start receiving update from GPS & Wifi */
-            managers.getGpsLocationManager().setupLocationRequest(LocationRequest.PRIORITY_HIGH_ACCURACY, pm.getReportInterval(), null);
+            managers.getGpsLocationManager().setupLocationRequest(LocationRequest.PRIORITY_HIGH_ACCURACY, pm.getReportIntervalGps(), null);
             managers.getWirelessSignalManager().setupWifiScanReceiver(null);
 
             while (true) {
@@ -121,23 +122,38 @@ public class ForegroundRunner implements Runnable {
     }
 
     @NotNull
-    private PreferenceManager.OnPreferenceChangedListener handlePreferenceChangeReportInterval() {
+    private PreferenceManager.OnPreferenceChangedListener handlePreferenceChangeReportIntervalGps() {
         return (preferenceManager, preference_tag) -> {
             Log.d("ForegroundRunner", "Change report interval");
-            int interval = preferenceManager.getReportInterval();
+            int interval = preferenceManager.getReportIntervalGps();
             managers.getGpsLocationManager().setupLocationRequest(LocationRequest.PRIORITY_HIGH_ACCURACY, interval, null);
-            this.managers.getAutoReportManager().restart();
+            this.managers.getAutoReportManager().restartGps();
         };
     }
 
     @NotNull
-    private PreferenceManager.OnPreferenceChangedListener handlePreferenceChangeAutoReport() {
+    private PreferenceManager.OnPreferenceChangedListener handlePreferenceChangeReportIntervalWifi() {
+        return (preferenceManager, preference_tag) -> {
+            Log.d("ForegroundRunner", "Change report interval");
+            int interval = preferenceManager.getReportIntervalWifi();
+            managers.getGpsLocationManager().setupLocationRequest(LocationRequest.PRIORITY_HIGH_ACCURACY, interval, null);
+            this.managers.getAutoReportManager().restartWifi();
+        };
+    }
+
+    @NotNull
+    private PreferenceManager.OnPreferenceChangedListener handlePreferenceChangeAutoReportGps() {
         return (preferenceManager, preference_tag) -> {
             Log.d("ForegroundRunner", "Change auto report");
-            if (preferenceManager.getAutoReport())
-                this.managers.getAutoReportManager().restart();
-            else
-                this.managers.getAutoReportManager().stop();
+            this.managers.getAutoReportManager().restartGps();
+        };
+    }
+
+    @NotNull
+    private PreferenceManager.OnPreferenceChangedListener handlePreferenceChangeAutoReportWifi() {
+        return (preferenceManager, preference_tag) -> {
+            Log.d("ForegroundRunner", "Change auto report");
+            this.managers.getAutoReportManager().restartWifi();
         };
     }
 
