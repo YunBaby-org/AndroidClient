@@ -13,6 +13,7 @@ import com.auth0.android.jwt.JWT;
 import com.example.client.amqp.AmqpChannelFactory;
 import com.example.client.manager.GpsLocationManager;
 import com.example.client.manager.PreferenceManager;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private File imageFile;
     private String privateImagePath;
     private Button buttonStartRegistration;
+    private FloatingActionButton fab;
     private View snackBar;
 
     @Override
@@ -48,16 +50,25 @@ public class MainActivity extends AppCompatActivity {
         /* Hook up views */
         this.snackBar = findViewById(R.id.main_activity_snackbar);
         this.buttonStartRegistration = findViewById(R.id.buttonStartRegistration);
+        this.fab = findViewById(R.id.fab);
 
         /* Register events */
         this.buttonStartRegistration.setOnClickListener(view -> {
             handleRegistration();
+        });
+        this.fab.setOnClickListener(view -> {
+            gotoSettings();
         });
 
         /* Ensure we have the location permission */
         GpsLocationManager.ensurePermissionGranted(this);
 
         /* TODO: Check if the location setting is enabled */
+    }
+
+    private void gotoSettings() {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
     }
 
     public void initializePreferences() {

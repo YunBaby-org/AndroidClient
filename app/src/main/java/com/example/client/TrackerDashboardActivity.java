@@ -114,6 +114,7 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
     private void removeCredentials() {
         pm.setRefreshToken("");
         pm.setRegistered(false);
+        pm.setTrackerID("");
         Intent intent = new Intent(this, MainActivity.class);
         finish();
         startActivity(intent);
