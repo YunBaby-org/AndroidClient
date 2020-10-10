@@ -11,7 +11,6 @@ import com.example.client.services.ForegroundService;
 import com.example.client.services.ServiceContext;
 import com.google.android.gms.location.LocationRequest;
 
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -75,12 +74,6 @@ public class ForegroundRunner implements Runnable {
             this.amqpConsumerThread = new Thread(new AmqpConsumerRunner(serviceContext, trackerId));
             this.amqpConsumerThread.start();
 
-            /* Register listener to deal with preference changes */
-            pm.registerListener(PreferenceManager.tagAutoReportGps, handlePreferenceChangeAutoReportGps());
-            pm.registerListener(PreferenceManager.tagReportIntervalGps, handlePreferenceChangeReportIntervalGps());
-            pm.registerListener(PreferenceManager.tagAutoReportWifi, handlePreferenceChangeAutoReportWifi());
-            pm.registerListener(PreferenceManager.tagReportIntervalWifi, handlePreferenceChangeReportIntervalWifi());
-
             /* Start receiving update from GPS & Wifi */
             serviceContext.getGpsLocationManager().setupLocationRequest(LocationRequest.PRIORITY_HIGH_ACCURACY, pm.getReportIntervalGps(), null);
             serviceContext.getWirelessSignalManager().setupWifiScanReceiver(null);
@@ -129,42 +122,6 @@ public class ForegroundRunner implements Runnable {
 
     private void restart_connection(String host, String token) throws InterruptedException {
         AmqpChannelFactory.getInstance().restart_with_password(obtainAccessToken(host, token));
-    }
-
-    @NotNull
-    private PreferenceManager.OnPreferenceChangedListener handlePreferenceChangeReportIntervalGps() {
-        return (preferenceManager, preference_tag) -> {
-            Log.d("ForegroundRunner", "Change report interval");
-            int interval = preferenceManager.getReportIntervalGps();
-            serviceContext.getGpsLocationManager().setupLocationRequest(LocationRequest.PRIORITY_HIGH_ACCURACY, interval, null);
-            this.serviceContext.getAutoReportManager().restartGps();
-        };
-    }
-
-    @NotNull
-    private PreferenceManager.OnPreferenceChangedListener handlePreferenceChangeReportIntervalWifi() {
-        return (preferenceManager, preference_tag) -> {
-            Log.d("ForegroundRunner", "Change report interval");
-            int interval = preferenceManager.getReportIntervalWifi();
-            serviceContext.getGpsLocationManager().setupLocationRequest(LocationRequest.PRIORITY_HIGH_ACCURACY, interval, null);
-            this.serviceContext.getAutoReportManager().restartWifi();
-        };
-    }
-
-    @NotNull
-    private PreferenceManager.OnPreferenceChangedListener handlePreferenceChangeAutoReportGps() {
-        return (preferenceManager, preference_tag) -> {
-            Log.d("ForegroundRunner", "Change auto report");
-            this.serviceContext.getAutoReportManager().restartGps();
-        };
-    }
-
-    @NotNull
-    private PreferenceManager.OnPreferenceChangedListener handlePreferenceChangeAutoReportWifi() {
-        return (preferenceManager, preference_tag) -> {
-            Log.d("ForegroundRunner", "Change auto report");
-            this.serviceContext.getAutoReportManager().restartWifi();
-        };
     }
 
     private String obtainAccessToken(String hostname, String refresh_token) throws InterruptedException {

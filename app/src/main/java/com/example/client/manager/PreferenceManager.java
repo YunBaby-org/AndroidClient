@@ -2,14 +2,8 @@ package com.example.client.manager;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import com.example.client.amqp.AmqpChannelFactory;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class PreferenceManager {
     public static final String tagAmqpHostname = "amqp-hostname";
@@ -33,17 +27,13 @@ public class PreferenceManager {
 
     private Context context;
 
-    private Map<String, List<OnPreferenceChangedListener>> onPreferenceChangedListeners;
-
     public PreferenceManager(Context context) {
         this.context = context;
-        onPreferenceChangedListeners = new HashMap<>();
     }
 
     @Deprecated
     public void setupListener() {
         getSharedPreferences().registerOnSharedPreferenceChangeListener((sharedPreferences, s) -> {
-            triggerListener(s);
         });
     }
 
@@ -59,7 +49,6 @@ public class PreferenceManager {
 
     public void setServiceAutoRestart(boolean value) {
         getSharedPreferences().edit().putBoolean(tagServerAutoRestart, value).apply();
-        triggerListener(tagServerAutoRestart);
     }
 
     public static void setServiceAutoRestart(Context context, boolean value) {
@@ -76,7 +65,6 @@ public class PreferenceManager {
 
     public void setAmqpHostname(String hostname) {
         getSharedPreferences().edit().putString(tagAmqpHostname, hostname).apply();
-        triggerListener(tagRegistered);
     }
 
     public String getAmqpHostname() {
@@ -87,7 +75,6 @@ public class PreferenceManager {
     /* Is Registered */
     public void setRegistered(boolean val) {
         getSharedPreferences().edit().putBoolean(tagRegistered, val).apply();
-        triggerListener(tagRegistered);
     }
 
     public boolean isRegistered() {
@@ -101,7 +88,6 @@ public class PreferenceManager {
     /* Refresh Token */
     public void setRefreshToken(String refreshToken) {
         getSharedPreferences().edit().putString(tagRefreshToken, refreshToken).apply();
-        triggerListener(tagRefreshToken);
     }
 
     public String getRefreshToken() {
@@ -110,7 +96,6 @@ public class PreferenceManager {
 
     public void setAmqpPort(int port) {
         getSharedPreferences().edit().putInt(tagAmqpPort, port).apply();
-        triggerListener(tagRefreshToken);
     }
 
     public int getAmqpPort() {
@@ -120,7 +105,6 @@ public class PreferenceManager {
     /* TrackerID */
     public void setTrackerID(String trackerID) {
         getSharedPreferences().edit().putString(tagTrackerID, trackerID).apply();
-        triggerListener(tagTrackerID);
     }
 
     public static String getTagTrackerID(Context context) {
@@ -140,12 +124,10 @@ public class PreferenceManager {
 
     public void setAutoReportGps(boolean value) {
         getSharedPreferences().edit().putBoolean(tagAutoReportGps, value).apply();
-        triggerListener(tagAutoReportGps);
     }
 
     public void setAutoReportWifi(boolean value) {
         getSharedPreferences().edit().putBoolean(tagAutoReportWifi, value).apply();
-        triggerListener(tagAutoReportWifi);
     }
 
     @Deprecated
@@ -171,14 +153,12 @@ public class PreferenceManager {
         if (value < 5)
             throw new ArithmeticException("The value of report interval cannot less than 5");
         getSharedPreferences().edit().putInt(tagReportIntervalGps, value).apply();
-        triggerListener(tagReportIntervalGps);
     }
 
     public void setReportIntervalWifi(int value) throws ArithmeticException {
         if (value < 10)
             throw new ArithmeticException("The value of report interval cannot less than 10");
         getSharedPreferences().edit().putInt(tagReportIntervalWifi, value).apply();
-        triggerListener(tagReportIntervalWifi);
     }
 
     @Deprecated
@@ -197,37 +177,10 @@ public class PreferenceManager {
     /* PowerSaving */
     public void setPowerSaving(boolean value) {
         getSharedPreferences().edit().putBoolean(tagPowerSaving, value).apply();
-        triggerListener(tagPowerSaving);
     }
 
     public boolean getPowerSaving() {
         return getSharedPreferences().getBoolean(tagPowerSaving, false);
-    }
-
-    public void registerListener(String preference_tag, OnPreferenceChangedListener listener) {
-        if (!onPreferenceChangedListeners.containsKey(preference_tag))
-            onPreferenceChangedListeners.put(preference_tag, new ArrayList<>());
-        onPreferenceChangedListeners.get(preference_tag).add(listener);
-    }
-
-    public void unregisterListener(String preference_tag, OnPreferenceChangedListener listener) {
-        if (onPreferenceChangedListeners.containsKey(preference_tag))
-            onPreferenceChangedListeners.get(preference_tag).remove(listener);
-        else
-            Log.e("PreferenceManager", "No such listener");
-    }
-
-    public void triggerListener(String preference_tag) {
-        List<OnPreferenceChangedListener> listeners = onPreferenceChangedListeners.get(preference_tag);
-        if (listeners != null) {
-            for (OnPreferenceChangedListener listener : listeners)
-                listener.onPreferenceChanged(this, preference_tag);
-        }
-    }
-
-
-    public interface OnPreferenceChangedListener {
-        void onPreferenceChanged(PreferenceManager preferenceManager, String preference_tag);
     }
 
 }
