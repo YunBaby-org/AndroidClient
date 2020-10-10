@@ -4,9 +4,9 @@ import android.util.Log;
 
 import com.example.client.amqp.AmqpHandler;
 import com.example.client.amqp.AmqpOperationFailedException;
-import com.example.client.manager.Managers;
 import com.example.client.requests.Request;
 import com.example.client.requests.RequestFactory;
+import com.example.client.services.ServiceContext;
 import com.rabbitmq.client.Delivery;
 import com.rabbitmq.client.ShutdownListener;
 import com.rabbitmq.client.ShutdownSignalException;
@@ -20,12 +20,12 @@ import java.nio.charset.StandardCharsets;
 
 public class AmqpConsumerRunner implements Runnable {
 
-    private Managers managers;
+    private ServiceContext serviceContext;
     private AmqpHandler amqpHandler;
     private String trackerId;
 
-    public AmqpConsumerRunner(Managers managers, String trackerId) {
-        this.managers = managers;
+    public AmqpConsumerRunner(ServiceContext serviceContext, String trackerId) {
+        this.serviceContext = serviceContext;
         this.trackerId = trackerId;
     }
 
@@ -103,8 +103,8 @@ public class AmqpConsumerRunner implements Runnable {
                         throw new UnknownRequestFormat("The given JSON object doesn't fit in any format of request");
                     Log.i("Consumer", "Consumer receive a " + request.getName() + " request");
 
-                    /* Execute the request with the help of all these managers. */
-                    JSONObject response = request.createResponse(managers);
+                    /* Execute the request with the help of all these serviceContext. */
+                    JSONObject response = request.createResponse(serviceContext);
                     Log.i("Consumer", "Consumer create response");
                     Log.d("Consumer", response.toString());
 

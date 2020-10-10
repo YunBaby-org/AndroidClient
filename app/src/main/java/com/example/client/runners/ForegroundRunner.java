@@ -6,9 +6,9 @@ import android.os.HandlerThread;
 import android.util.Log;
 
 import com.example.client.amqp.AmqpChannelFactory;
-import com.example.client.manager.Managers;
 import com.example.client.manager.PreferenceManager;
 import com.example.client.services.ForegroundService;
+import com.example.client.services.ServiceContext;
 import com.google.android.gms.location.LocationRequest;
 
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +34,7 @@ public class ForegroundRunner implements Runnable {
     private Handler workerHandler;
 
     private String trackerId;
-    private Managers managers;
+    private ServiceContext serviceContext;
 
     public ForegroundRunner(Context context, String trackerId) {
         this.context = context;
@@ -69,10 +69,10 @@ public class ForegroundRunner implements Runnable {
             }
 
             /* Manager */
-            this.managers = new Managers(context, workThread);
+            this.serviceContext = new ServiceContext(context, workThread);
 
             /* Setup AMQP consumer thread */
-            this.amqpConsumerThread = new Thread(new AmqpConsumerRunner(managers, trackerId));
+            this.amqpConsumerThread = new Thread(new AmqpConsumerRunner(serviceContext, trackerId));
             this.amqpConsumerThread.start();
 
             /* Register listener to deal with preference changes */
@@ -82,8 +82,8 @@ public class ForegroundRunner implements Runnable {
             pm.registerListener(PreferenceManager.tagReportIntervalWifi, handlePreferenceChangeReportIntervalWifi());
 
             /* Start receiving update from GPS & Wifi */
-            managers.getGpsLocationManager().setupLocationRequest(LocationRequest.PRIORITY_HIGH_ACCURACY, pm.getReportIntervalGps(), null);
-            managers.getWirelessSignalManager().setupWifiScanReceiver(null);
+            serviceContext.getGpsLocationManager().setupLocationRequest(LocationRequest.PRIORITY_HIGH_ACCURACY, pm.getReportIntervalGps(), null);
+            serviceContext.getWirelessSignalManager().setupWifiScanReceiver(null);
 
             ForegroundService.emitEvent(ForegroundService.EventLevel.Info, "準備完成");
             while (true) {
@@ -119,8 +119,8 @@ public class ForegroundRunner implements Runnable {
     }
 
     private void stop_runner() throws IOException {
-        managers.fire_wall_these_managers();
-        managers = null;
+        serviceContext.fire_wall_these_managers();
+        serviceContext = null;
         workThread.quit();
         workThread = null;
         amqpConsumerThread.interrupt();
@@ -136,8 +136,8 @@ public class ForegroundRunner implements Runnable {
         return (preferenceManager, preference_tag) -> {
             Log.d("ForegroundRunner", "Change report interval");
             int interval = preferenceManager.getReportIntervalGps();
-            managers.getGpsLocationManager().setupLocationRequest(LocationRequest.PRIORITY_HIGH_ACCURACY, interval, null);
-            this.managers.getAutoReportManager().restartGps();
+            serviceContext.getGpsLocationManager().setupLocationRequest(LocationRequest.PRIORITY_HIGH_ACCURACY, interval, null);
+            this.serviceContext.getAutoReportManager().restartGps();
         };
     }
 
@@ -146,8 +146,8 @@ public class ForegroundRunner implements Runnable {
         return (preferenceManager, preference_tag) -> {
             Log.d("ForegroundRunner", "Change report interval");
             int interval = preferenceManager.getReportIntervalWifi();
-            managers.getGpsLocationManager().setupLocationRequest(LocationRequest.PRIORITY_HIGH_ACCURACY, interval, null);
-            this.managers.getAutoReportManager().restartWifi();
+            serviceContext.getGpsLocationManager().setupLocationRequest(LocationRequest.PRIORITY_HIGH_ACCURACY, interval, null);
+            this.serviceContext.getAutoReportManager().restartWifi();
         };
     }
 
@@ -155,7 +155,7 @@ public class ForegroundRunner implements Runnable {
     private PreferenceManager.OnPreferenceChangedListener handlePreferenceChangeAutoReportGps() {
         return (preferenceManager, preference_tag) -> {
             Log.d("ForegroundRunner", "Change auto report");
-            this.managers.getAutoReportManager().restartGps();
+            this.serviceContext.getAutoReportManager().restartGps();
         };
     }
 
@@ -163,7 +163,7 @@ public class ForegroundRunner implements Runnable {
     private PreferenceManager.OnPreferenceChangedListener handlePreferenceChangeAutoReportWifi() {
         return (preferenceManager, preference_tag) -> {
             Log.d("ForegroundRunner", "Change auto report");
-            this.managers.getAutoReportManager().restartWifi();
+            this.serviceContext.getAutoReportManager().restartWifi();
         };
     }
 

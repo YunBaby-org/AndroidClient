@@ -3,8 +3,8 @@ package com.example.client.requests;
 import android.net.wifi.ScanResult;
 import android.util.Log;
 
-import com.example.client.manager.Managers;
 import com.example.client.manager.WirelessSignalManager;
+import com.example.client.services.ServiceContext;
 
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
@@ -29,8 +29,8 @@ public class RequestScanWifiSignal extends Request {
     }
 
     @Override
-    public JSONObject createResponse(Managers managers) {
-        return createResponse(managers.getWirelessSignalManager(), null);
+    public JSONObject createResponse(ServiceContext serviceContext) {
+        return createResponse(serviceContext.getWirelessSignalManager(), null);
     }
 
     public JSONObject createResponse(WirelessSignalManager wirelessSignalManager, @Nullable WirelessSignalManager.WirelessScanResult pre_result) {

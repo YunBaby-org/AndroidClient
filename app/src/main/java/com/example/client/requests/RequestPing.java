@@ -1,6 +1,6 @@
 package com.example.client.requests;
 
-import com.example.client.manager.Managers;
+import com.example.client.services.ServiceContext;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,7 +15,7 @@ public class RequestPing extends Request {
     }
 
     @Override
-    public JSONObject createResponse(Managers managers) {
+    public JSONObject createResponse(ServiceContext serviceContext) {
         return createSuccessResponse(requestName, null, true);
     }
 }

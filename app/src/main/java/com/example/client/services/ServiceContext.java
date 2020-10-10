@@ -1,14 +1,20 @@
-package com.example.client.manager;
+package com.example.client.services;
 
 import android.content.Context;
 import android.os.HandlerThread;
 import android.util.Log;
 
+import com.example.client.manager.AutoReportManager;
+import com.example.client.manager.GpsLocationManager;
+import com.example.client.manager.PowerManager;
+import com.example.client.manager.PreferenceManager;
+import com.example.client.manager.WirelessSignalManager;
+
 /**
  * This is a super super class that provider a bunch of functionality.
  * Consumed request will create its response with the help of all these managers
  */
-public class Managers {
+public class ServiceContext {
     private PowerManager powerManager;
     private PreferenceManager preferenceManager;
     private GpsLocationManager gpsLocationManager;
@@ -17,7 +23,7 @@ public class Managers {
     private Context context;
     private HandlerThread workerThread;
 
-    public Managers(Context context, HandlerThread workerThread) {
+    public ServiceContext(Context context, HandlerThread workerThread) {
         this.context = context;
         this.workerThread = workerThread;
         this.powerManager = new PowerManager(context);
@@ -28,11 +34,11 @@ public class Managers {
     }
 
     public void fire_wall_these_managers() {
-        Log.e("Managers", "Wireless Signal Manager");
+        Log.e("ServiceContext", "Wireless Signal Manager");
         wirelessSignalManager.stop();
-        Log.e("Managers", "GPS Location Manager");
+        Log.e("ServiceContext", "GPS Location Manager");
         gpsLocationManager.stop();
-        Log.e("Managers", "Stop AutoReport Manager");
+        Log.e("ServiceContext", "Stop AutoReport Manager");
         autoReportManager.releaseResources();
     }
 

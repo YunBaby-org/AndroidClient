@@ -4,7 +4,7 @@ import android.location.Location;
 import android.util.Log;
 
 import com.example.client.manager.GpsLocationManager;
-import com.example.client.manager.Managers;
+import com.example.client.services.ServiceContext;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,8 +29,8 @@ public class RequestScanGPS extends Request {
     }
 
     @Override
-    public JSONObject createResponse(Managers managers) {
-        return createResponse(managers.getGpsLocationManager());
+    public JSONObject createResponse(ServiceContext serviceContext) {
+        return createResponse(serviceContext.getGpsLocationManager());
     }
 
     public JSONObject createResponse(GpsLocationManager gpsLocationManager) {
