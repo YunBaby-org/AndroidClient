@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 
+import com.example.client.amqp.AmqpAuthentication;
 import com.example.client.amqp.AmqpChannelFactory;
 import com.example.client.manager.PreferenceManager;
 import com.example.client.services.ForegroundService;
@@ -12,15 +13,8 @@ import com.example.client.services.ServiceContext;
 import com.google.android.gms.location.LocationRequest;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
-
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 import static com.example.client.services.ServiceEventLogger.Event;
 
@@ -58,15 +52,38 @@ public class ForegroundRunner implements Runnable {
                 AmqpChannelFactory.getInstance().start(new AmqpChannelFactory.ConnectionSetting()
                         .setHostname(pm.getAmqpHostname())
                         .setUsername(pm.getTrackerID())
-                        .setPassword(obtainAccessToken(pm.getAmqpHostname(), pm.getRefreshToken()))
+                        .setPassword(AmqpAuthentication.obtainAccessToken(pm))
                         .setPort(pm.getAmqpPort())
                         .setVhost("/")
                 );
                 ForegroundService.emitEvent(Event.Info("取得登入憑證"));
-            } catch (InterruptedException e) {
+            } catch (JSONException e) {
                 e.printStackTrace();
-                Log.e("ForegroundService", "Interrupted");
-                return;
+                Log.e("ForegroundRunner", "Failed to obtain access token: Invalid response");
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException ex) { /* Handle interruption correctly */
+                    break;
+                }
+                continue;
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e("ForegroundRunner", "Failed to obtain access token: Connection timeout or refused");
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException ex) { /* Handle interruption correctly */
+                    break;
+                }
+                continue;
+            } catch (AmqpAuthentication.BadRequestException e) {
+                e.printStackTrace();
+                Log.e("ForegroundRunner", "Failed to obtain access token: Request failed");
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException ex) { /* Handle interruption correctly */
+                    break;
+                }
+                continue;
             }
 
             /* Manager */
@@ -120,39 +137,6 @@ public class ForegroundRunner implements Runnable {
         workThread = null;
         amqpConsumerThread.interrupt();
         amqpConsumerThread = null;
-    }
-
-    private void restart_connection(String host, String token) throws InterruptedException {
-        AmqpChannelFactory.getInstance().restart_with_password(obtainAccessToken(host, token));
-    }
-
-    private String obtainAccessToken(String hostname, String refresh_token) throws InterruptedException {
-        /* 重複執行這個過程，說真的如果沒有取得可用的 Access token，你什麼都不能做 ... */
-        while (true) {
-            try {
-                OkHttpClient client = new OkHttpClient();
-                Request request = null;
-                request = new Request.Builder()
-                        .url(String.format("http://%s/api/v1/mobile/trackers/tokens", hostname))
-                        .patch(createRequestPayload(refresh_token))
-                        .build();
-                Response httpResponse = client.newCall(request).execute();
-                String result = httpResponse.body().string();
-                Log.i("ForegroundRunner", result);
-                return new JSONObject(result).getJSONObject("payload").getString("access_token");
-            } catch (JSONException | IOException e) {
-                e.printStackTrace();
-                Log.e("ForegroundRunner", "Failed to obtain refresh token");
-                ForegroundService.emitEvent(Event.Error("無法與伺服器連線"));
-            }
-            Thread.sleep(3000);
-        }
-    }
-
-    private RequestBody createRequestPayload(String refresh_token) throws JSONException {
-        JSONObject object = new JSONObject();
-        object.put("refresh_token", refresh_token);
-        return RequestBody.create(object.toString(), MediaType.parse("application/json; charset=utf-8"));
     }
 
 }
