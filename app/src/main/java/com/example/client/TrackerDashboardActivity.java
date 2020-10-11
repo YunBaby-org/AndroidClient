@@ -20,9 +20,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.client.manager.PreferenceManager;
 import com.example.client.services.ForegroundService;
+import com.example.client.services.ServiceEventLogger;
 import com.google.android.material.snackbar.Snackbar;
 
-public class TrackerDashboardActivity extends AppCompatActivity implements ServiceConnection, ForegroundService.EventListener {
+public class TrackerDashboardActivity extends AppCompatActivity implements ServiceConnection, ServiceEventLogger.IServiceEventListener {
 
     public static final String INTENT_DISPLAY_CONTENT = "intentDisplayContent";
     private View snackbar;
@@ -157,17 +158,6 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
         attemptsBinding();
     }
 
-    @Override
-    public void onEventOccurred(ForegroundService.Event event) {
-        runOnUiThread(() -> {
-            String info = event.getContent().equals("") ? getString(event.getResourceHint()) : event.getContent();
-            TextView tv = new TextView(this);
-            tv.setText(String.format("[%s] %s", event.getEventLevel().toString(), info));
-            tv.setTextColor(Color.argb(0xff, 0x14, 0x14, 0x14));
-            eventLayout.addView(tv);
-        });
-    }
-
     private void attemptsBinding() {
         Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(() -> {
@@ -182,5 +172,16 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
             /* Re-Distribute this event */
             attemptsBinding();
         }, 5000);
+    }
+
+    @Override
+    public void onEventOccurred(ServiceEventLogger.Event e) {
+        runOnUiThread(() -> {
+            String info = e.getContent() == null ? getString(e.getContentId()) : e.getContent();
+            TextView tv = new TextView(this);
+            tv.setText(String.format("[%s] %s", e.getLevel().toString(), info));
+            tv.setTextColor(Color.argb(0xff, 0x14, 0x14, 0x14));
+            eventLayout.addView(tv);
+        });
     }
 }

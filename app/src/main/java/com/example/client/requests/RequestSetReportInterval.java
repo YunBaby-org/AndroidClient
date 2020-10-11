@@ -8,6 +8,8 @@ import com.example.client.services.ServiceContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import static com.example.client.services.ServiceEventLogger.Event;
+
 public class RequestSetReportInterval extends Request {
 
     protected int interval;
@@ -32,11 +34,11 @@ public class RequestSetReportInterval extends Request {
             switch (Target) {
                 case GPS:
                     serviceContext.getPreferenceManager().setReportIntervalGps(interval);
-                    ForegroundService.emitEvent(ForegroundService.EventLevel.Info, "更新 GPS 回報間隔為 " + interval);
+                    ForegroundService.emitEvent(Event.Info("更新 GPS 回報間隔為 " + interval));
                     break;
                 case WIFI:
                     serviceContext.getPreferenceManager().setReportIntervalWifi(interval);
-                    ForegroundService.emitEvent(ForegroundService.EventLevel.Info, "更新 Wifi 回報間隔為 " + interval);
+                    ForegroundService.emitEvent(Event.Info("更新 Wifi 回報間隔為 " + interval));
                     break;
                 default:
                     Log.wtf("RequestSetReportInterval", "Unknown target");

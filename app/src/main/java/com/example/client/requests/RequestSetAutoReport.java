@@ -8,6 +8,8 @@ import com.example.client.services.ServiceContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import static com.example.client.services.ServiceEventLogger.Event;
+
 public class RequestSetAutoReport extends Request {
 
     protected boolean Enable;
@@ -32,11 +34,11 @@ public class RequestSetAutoReport extends Request {
             switch (Target) {
                 case GPS:
                     serviceContext.getPreferenceManager().setAutoReportGps(Enable);
-                    ForegroundService.emitEvent(ForegroundService.EventLevel.Info, "GPS自動回報 " + (Enable ? "開啟" : "關閉"));
+                    ForegroundService.emitEvent(Event.Info("GPS自動回報 " + (Enable ? "開啟" : "關閉")));
                     break;
                 case WIFI:
                     serviceContext.getPreferenceManager().setAutoReportWifi(Enable);
-                    ForegroundService.emitEvent(ForegroundService.EventLevel.Info, "Wifi自動回報" + (Enable ? "開啟" : "關閉"));
+                    ForegroundService.emitEvent(Event.Info("Wifi自動回報" + (Enable ? "開啟" : "關閉")));
                     break;
                 default:
                     Log.wtf("RequestSetReportInterval", "Unknown target");

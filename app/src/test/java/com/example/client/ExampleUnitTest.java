@@ -25,11 +25,10 @@ public class ExampleUnitTest {
 
     @Test
     public void shouldCreateCorrespondingRequest() throws JSONException {
-        JSONObject request = new JSONObject("{ \"Request\": \"GetVersion\" }");
+        JSONObject request = new JSONObject("{ \"Request\": \"GetVersion\", \"id\": \"123\" }");
 
         assertTrue(RequestFactory.parseJSONRequest(request) instanceof RequestGetVersion);
         assertFalse(RequestFactory.parseJSONRequest(request) instanceof RequestGetDeviceStatus);
     }
-
 
 }

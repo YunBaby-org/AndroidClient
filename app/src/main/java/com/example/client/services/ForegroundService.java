@@ -16,25 +16,14 @@ import com.example.client.R;
 import com.example.client.manager.PreferenceManager;
 import com.example.client.runners.ForegroundRunner;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
 import static com.example.client.App.CHANNEL_ID;
+import static com.example.client.services.ServiceEventLogger.Event;
+import static com.example.client.services.ServiceEventLogger.IServiceEventListener;
 
 public class ForegroundService extends Service {
 
     /* TODO: Start the service on boot */
     /* TODO: Restart the service on accident */
-
-    public static void emitEvent(EventLevel level, int resourceId) {
-        getServiceBinder().emitEvent(Event.createEvent(level, resourceId));
-    }
-
-    public static void emitEvent(EventLevel level, String content) {
-        getServiceBinder().emitEvent(Event.createEvent(level, content));
-    }
 
     public static void emitEvent(Event e) {
         getServiceBinder().emitEvent(e);
@@ -74,97 +63,10 @@ public class ForegroundService extends Service {
         return START_STICKY;
     }
 
-    private void setupServiceThread() {
-        if (serviceThread == null) {
-            PreferenceManager pm = new PreferenceManager(this);
-            serviceThread = new Thread(new ForegroundRunner(this, pm.getTrackerID()));
-            serviceThread.start();
-        }
-    }
-
     @Override
     public boolean stopService(Intent name) {
         this.serviceThread.interrupt();
         return super.stopService(name);
-    }
-
-    public enum EventLevel {Critical, Error, Warning, Info, Debug}
-
-    public static class ServiceBinder extends Binder {
-        private final List<EventListener> eventListeners = Collections.synchronizedList(new ArrayList<>());
-
-        public void addEventListener(EventListener listener) {
-            synchronized (eventListeners) {
-                if (!eventListeners.contains(listener))
-                    eventListeners.add(listener);
-                else
-                    Log.w("ForegroundService", "Event listener already registered");
-            }
-        }
-
-        public boolean removeEventListener(EventListener listener) {
-            synchronized (eventListeners) {
-                return eventListeners.remove(listener);
-            }
-        }
-
-        protected void emitEvent(Event event) {
-            synchronized (eventListeners) {
-                for (EventListener e : eventListeners)
-                    e.onEventOccurred(event);
-            }
-        }
-    }
-
-    public interface EventListener {
-        void onEventOccurred(Event event);
-    }
-
-    public static class Event {
-        private Date eventTime;
-        private ForegroundService.EventLevel eventLevel;
-        private String content;
-        private int resourceHint;
-
-        private Event(Date eventTime, ForegroundService.EventLevel eventLevel, int resourceHint, String content) {
-            this.eventTime = eventTime;
-            this.eventLevel = eventLevel;
-            this.content = content;
-            this.resourceHint = resourceHint;
-        }
-
-        public static Event createEvent(Date eventTime, ForegroundService.EventLevel eventLevel, int resourceHint, String content) {
-            return new Event(eventTime, eventLevel, resourceHint, content);
-        }
-
-        public static Event createEvent(ForegroundService.EventLevel eventLevel, int resourceHint, String content) {
-            return new Event(new Date(), eventLevel, resourceHint, content);
-        }
-
-        public static Event createEvent(ForegroundService.EventLevel eventLevel, int resourceHint) {
-            return new Event(new Date(), eventLevel, resourceHint, "");
-        }
-
-        public static Event createEvent(ForegroundService.EventLevel eventLevel, String content) {
-            return new Event(new Date(), eventLevel, -1, content);
-        }
-
-        public Date getEventTime() {
-            return eventTime;
-        }
-
-        public ForegroundService.EventLevel getEventLevel() {
-            return eventLevel;
-        }
-
-        public String getContent() {
-            return content;
-        }
-
-        public int getResourceHint() {
-            return resourceHint;
-        }
-
     }
 
     @Nullable
@@ -178,6 +80,30 @@ public class ForegroundService extends Service {
         Log.i("ForegroundRunner", "Attempts to stop service thread.");
         this.serviceThread.interrupt();
         super.onDestroy();
+    }
+
+    private void setupServiceThread() {
+        if (serviceThread == null) {
+            PreferenceManager pm = new PreferenceManager(this);
+            serviceThread = new Thread(new ForegroundRunner(this, pm.getTrackerID()));
+            serviceThread.start();
+        }
+    }
+
+    public static class ServiceBinder extends Binder {
+        private ServiceEventLogger logger = new ServiceEventLogger();
+
+        public void addEventListener(IServiceEventListener listener) {
+            logger.addListener(listener);
+        }
+
+        public void removeEventListener(IServiceEventListener listener) throws Exception {
+            logger.removeListener(listener);
+        }
+
+        protected void emitEvent(ServiceEventLogger.Event e) {
+            logger.emitEvent(e);
+        }
     }
 
 }
