@@ -53,7 +53,6 @@ public class ServiceRunner implements Runnable {
 
             releaseServiceContext();
         }
-        releaseServiceContext();
     }
 
     private boolean sleep(int ms) {
