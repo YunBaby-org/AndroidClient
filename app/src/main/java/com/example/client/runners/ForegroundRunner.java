@@ -9,7 +9,7 @@ import com.example.client.amqp.AmqpAuthentication;
 import com.example.client.amqp.AmqpChannelFactory;
 import com.example.client.manager.PreferenceManager;
 import com.example.client.services.ForegroundService;
-import com.example.client.services.ServiceContext;
+import com.example.client.services.ServiceState;
 import com.google.android.gms.location.LocationRequest;
 
 import org.json.JSONException;
@@ -21,6 +21,7 @@ import static com.example.client.services.ServiceEventLogger.Event;
 /**
  * The consumer logic for foreground service
  */
+@Deprecated
 public class ForegroundRunner implements Runnable {
 
     private Context context;
@@ -29,7 +30,7 @@ public class ForegroundRunner implements Runnable {
     private Handler workerHandler;
 
     private String trackerId;
-    private ServiceContext serviceContext;
+    private ServiceState serviceState;
 
     public ForegroundRunner(Context context, String trackerId) {
         this.context = context;
@@ -87,15 +88,15 @@ public class ForegroundRunner implements Runnable {
             }
 
             /* Manager */
-            this.serviceContext = new ServiceContext(context, workThread);
+            this.serviceState = new ServiceState(context);
 
             /* Setup AMQP consumer thread */
-            this.amqpConsumerThread = new Thread(new AmqpConsumerRunner(serviceContext, trackerId));
+            this.amqpConsumerThread = new Thread(new AmqpConsumerRunner(serviceState, trackerId));
             this.amqpConsumerThread.start();
 
             /* Start receiving update from GPS & Wifi */
-            serviceContext.getGpsLocationManager().setupLocationRequest(LocationRequest.PRIORITY_HIGH_ACCURACY, pm.getReportIntervalGps(), null);
-            serviceContext.getWirelessSignalManager().setupWifiScanReceiver(null);
+            serviceState.getGpsLocationManager().setupLocationRequest(LocationRequest.PRIORITY_HIGH_ACCURACY, pm.getReportIntervalGps(), null);
+            serviceState.getWirelessSignalManager().setupWifiScanReceiver(null);
 
             ForegroundService.emitEvent(Event.Info("準備完成"));
             while (true) {
@@ -131,8 +132,8 @@ public class ForegroundRunner implements Runnable {
     }
 
     private void stop_runner() throws IOException {
-        serviceContext.fire_wall_these_managers();
-        serviceContext = null;
+        serviceState.release();
+        serviceState = null;
         workThread.quit();
         workThread = null;
         amqpConsumerThread.interrupt();

@@ -3,7 +3,7 @@ package com.example.client.requests;
 import android.util.Log;
 
 import com.example.client.services.ForegroundService;
-import com.example.client.services.ServiceContext;
+import com.example.client.services.ServiceState;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,15 +29,15 @@ public class RequestSetAutoReport extends Request {
     }
 
     @Override
-    public JSONObject createResponse(ServiceContext serviceContext) {
+    public JSONObject createResponse(ServiceState serviceState) {
         try {
             switch (Target) {
                 case GPS:
-                    serviceContext.getPreferenceManager().setAutoReportGps(Enable);
+                    serviceState.getPreferenceManager().setAutoReportGps(Enable);
                     ForegroundService.emitEvent(Event.Info("GPS自動回報 " + (Enable ? "開啟" : "關閉")));
                     break;
                 case WIFI:
-                    serviceContext.getPreferenceManager().setAutoReportWifi(Enable);
+                    serviceState.getPreferenceManager().setAutoReportWifi(Enable);
                     ForegroundService.emitEvent(Event.Info("Wifi自動回報" + (Enable ? "開啟" : "關閉")));
                     break;
                 default:

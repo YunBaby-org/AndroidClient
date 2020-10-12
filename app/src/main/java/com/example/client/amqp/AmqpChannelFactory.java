@@ -9,6 +9,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
+@Deprecated
 public class AmqpChannelFactory {
 
     public static final String AMQP_DEFAULT_HOSTNAME = "192.168.0.3";
@@ -35,6 +36,10 @@ public class AmqpChannelFactory {
     private AmqpChannelFactory() {
         factory = new ConnectionFactory();
         amqpConnection = null;
+    }
+
+    public static AmqpChannelFactory createAmqpConnectionFactory() {
+        return new AmqpChannelFactory();
     }
 
     public void start(ConnectionSetting settings) {
@@ -68,9 +73,14 @@ public class AmqpChannelFactory {
         ensureConnected();
     }
 
-    public void close() throws IOException {
+    public void close() {
         /* Guess what, there is no way you can stop the factory from running */
-        amqpConnection.close();
+        try {
+            amqpConnection.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            amqpConnection.abort();
+        }
         amqpConnection = null;
     }
 

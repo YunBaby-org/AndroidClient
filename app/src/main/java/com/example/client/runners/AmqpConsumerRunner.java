@@ -6,7 +6,7 @@ import com.example.client.amqp.AmqpHandler;
 import com.example.client.amqp.AmqpOperationFailedException;
 import com.example.client.requests.Request;
 import com.example.client.requests.RequestFactory;
-import com.example.client.services.ServiceContext;
+import com.example.client.services.ServiceState;
 import com.rabbitmq.client.Delivery;
 import com.rabbitmq.client.ShutdownListener;
 import com.rabbitmq.client.ShutdownSignalException;
@@ -18,14 +18,15 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+@Deprecated
 public class AmqpConsumerRunner implements Runnable {
 
-    private ServiceContext serviceContext;
+    private ServiceState serviceState;
     private AmqpHandler amqpHandler;
     private String trackerId;
 
-    public AmqpConsumerRunner(ServiceContext serviceContext, String trackerId) {
-        this.serviceContext = serviceContext;
+    public AmqpConsumerRunner(ServiceState serviceState, String trackerId) {
+        this.serviceState = serviceState;
         this.trackerId = trackerId;
     }
 
@@ -103,8 +104,8 @@ public class AmqpConsumerRunner implements Runnable {
                         throw new UnknownRequestFormat("The given JSON object doesn't fit in any format of request");
                     Log.i("Consumer", "Consumer receive a " + request.getName() + " request");
 
-                    /* Execute the request with the help of all these serviceContext. */
-                    JSONObject response = request.createResponse(serviceContext);
+                    /* Execute the request with the help of all these serviceState. */
+                    JSONObject response = request.createResponse(serviceState);
                     Log.i("Consumer", "Consumer create response");
                     Log.d("Consumer", response.toString());
 

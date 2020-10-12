@@ -1,6 +1,6 @@
 package com.example.client.requests;
 
-import com.example.client.services.ServiceContext;
+import com.example.client.services.ServiceState;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,7 +15,7 @@ public class RequestPing extends Request {
     }
 
     @Override
-    public JSONObject createResponse(ServiceContext serviceContext) {
+    public JSONObject createResponse(ServiceState serviceState) {
         return createSuccessResponse(requestName, null, true);
     }
 }

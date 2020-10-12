@@ -3,7 +3,7 @@ package com.example.client.requests;
 import android.util.Log;
 
 import com.example.client.services.ForegroundService;
-import com.example.client.services.ServiceContext;
+import com.example.client.services.ServiceState;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,15 +29,15 @@ public class RequestSetReportInterval extends Request {
     }
 
     @Override
-    public JSONObject createResponse(ServiceContext serviceContext) {
+    public JSONObject createResponse(ServiceState serviceState) {
         try {
             switch (Target) {
                 case GPS:
-                    serviceContext.getPreferenceManager().setReportIntervalGps(interval);
+                    serviceState.getPreferenceManager().setReportIntervalGps(interval);
                     ForegroundService.emitEvent(Event.Info("更新 GPS 回報間隔為 " + interval));
                     break;
                 case WIFI:
-                    serviceContext.getPreferenceManager().setReportIntervalWifi(interval);
+                    serviceState.getPreferenceManager().setReportIntervalWifi(interval);
                     ForegroundService.emitEvent(Event.Info("更新 Wifi 回報間隔為 " + interval));
                     break;
                 default:

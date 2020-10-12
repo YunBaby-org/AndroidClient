@@ -8,24 +8,25 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.example.client.R;
-import com.example.client.amqp.AmqpHandler;
 import com.example.client.amqp.AmqpUtility;
 import com.example.client.requests.RequestScanGPS;
 import com.example.client.requests.RequestScanWifiSignal;
 import com.example.client.services.ForegroundService;
+import com.rabbitmq.client.Channel;
 
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 import static com.example.client.services.ServiceEventLogger.Event;
 
-public class AutoReportManager {
+public class AutoReportManager implements IHealthCheckable {
 
     private WirelessSignalManager wirelessSignalManager;
     private GpsLocationManager gpsLocationManager;
     private PreferenceManager preferenceManager;
-    private AmqpHandler amqpHandler;
+    private Channel amqpChannel;
     private Handler handler;
     private String trackerId;
 
@@ -33,13 +34,13 @@ public class AutoReportManager {
     private final static int AUTO_REPORT_WIFI_MESSAGE_TYPE_SCANNING = 1;
     private final static int AUTO_REPORT_WIFI_MESSAGE_TYPE_GET_RESULT = 2;
 
-
     /* TODO: Refactor this shitty code */
-    public AutoReportManager(Looper looper, GpsLocationManager gpsLocationManager, WirelessSignalManager wirelessSignalManager, PreferenceManager preferenceManager) {
+    public AutoReportManager(Channel amqpChannel, Looper looper, GpsLocationManager gpsLocationManager, WirelessSignalManager wirelessSignalManager, PreferenceManager preferenceManager) {
         this.wirelessSignalManager = wirelessSignalManager;
         this.gpsLocationManager = gpsLocationManager;
         this.preferenceManager = preferenceManager;
         this.trackerId = preferenceManager.getTrackerID();
+        this.amqpChannel = amqpChannel;
         this.handler = new Handler(looper) {
             @Override
             public void handleMessage(@NonNull Message msg) {
@@ -79,7 +80,7 @@ public class AutoReportManager {
             JSONObject response = (new RequestScanGPS()).createResponse(gpsLocationManager);
 
             /* Sending message */
-            ensureAmqpHandler().publishMessage("tracker-event", AmqpUtility.getResponseRoutingKey(trackerId, response), response);
+            AmqpUtility.sendTrackerResponse(amqpChannel, trackerId, response);
             Log.d("AutoReportManager", "Auto Report Current GPS Location");
 
             ForegroundService.emitEvent(Event.Info(R.string.event_description_auto_report_gps));
@@ -101,6 +102,7 @@ public class AutoReportManager {
         handler.sendMessageDelayed(message, 500);
     }
 
+    // TODO: Potential bug, the wifi result never return during a smoking test.
     private void eventWifiResult(int arg1, int arg2) throws Exception {
         if (preferenceManager.getAutoReportWifi()) {
             if (arg1 >= arg2) {
@@ -114,7 +116,7 @@ public class AutoReportManager {
                 JSONObject response = (new RequestScanWifiSignal()).createResponse(wirelessSignalManager, result);
 
                 /* Send it */
-                ensureAmqpHandler().publishMessage("tracker-event", AmqpUtility.getResponseRoutingKey(trackerId, response), response);
+                AmqpUtility.sendTrackerResponse(amqpChannel, trackerId, response);
                 ForegroundService.emitEvent(Event.Info(R.string.event_description_auto_report_send_wifi_signals));
                 Log.d("AutoReportManager", "Auto Report Surrounding Wifi Signals");
 
@@ -136,12 +138,18 @@ public class AutoReportManager {
 
     public void releaseResources() {
         this.stop();
-        try {
-            if (amqpHandler != null && amqpHandler.getAmqpChannel().isOpen())
-                amqpHandler.stop();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (amqpChannel != null && amqpChannel.isOpen()) {
+            try {
+                try {
+                    amqpChannel.close();
+                } catch (TimeoutException e) {
+                    amqpChannel.abort();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+        amqpChannel = null;
     }
 
     public void restart() {
@@ -174,11 +182,11 @@ public class AutoReportManager {
         return this.preferenceManager.getReportIntervalWifi() * 1000;
     }
 
-    private AmqpHandler ensureAmqpHandler() throws Exception {
-        if (amqpHandler == null || !amqpHandler.getAmqpChannel().isOpen()) {
-            amqpHandler = new AmqpHandler(trackerId);
-            Log.d("AutoReportManager", "Create new instance of Amqp Handler");
-        }
-        return amqpHandler;
+    @Override
+    public boolean healthCheck() {
+        if (!handler.getLooper().getThread().isAlive()) return false;
+        if (amqpChannel == null) return false;
+        if (!amqpChannel.isOpen()) return false;
+        return true;
     }
 }

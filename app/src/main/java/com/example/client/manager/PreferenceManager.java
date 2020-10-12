@@ -3,7 +3,7 @@ package com.example.client.manager;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.example.client.amqp.AmqpChannelFactory;
+import com.example.client.R;
 
 public class PreferenceManager {
     public static final String tagAmqpHostname = "amqp-hostname";
@@ -68,7 +68,7 @@ public class PreferenceManager {
     }
 
     public String getAmqpHostname() {
-        return getSharedPreferences().getString(tagAmqpHostname, AmqpChannelFactory.AMQP_DEFAULT_HOSTNAME);
+        return getSharedPreferences().getString(tagAmqpHostname, context.getResources().getString(R.string.AMQP_DEFAULT_HOSTNAME));
     }
 
 

@@ -2,7 +2,7 @@ package com.example.client.requests;
 
 import android.util.Log;
 
-import com.example.client.services.ServiceContext;
+import com.example.client.services.ServiceState;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,10 +27,10 @@ public abstract class Request {
     /**
      * Handle the request and generate the response
      *
-     * @param serviceContext The serviceContext object
+     * @param serviceState The serviceState object
      * @return The response JSON object
      */
-    public abstract JSONObject createResponse(ServiceContext serviceContext);
+    public abstract JSONObject createResponse(ServiceState serviceState);
 
     /**
      * Create success response, with no payload field

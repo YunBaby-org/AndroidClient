@@ -1,7 +1,7 @@
 package com.example.client.requests;
 
 import com.example.client.manager.PowerManager;
-import com.example.client.services.ServiceContext;
+import com.example.client.services.ServiceState;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,11 +16,11 @@ public class RequestGetPowerStatus extends Request {
     }
 
     @Override
-    public JSONObject createResponse(ServiceContext serviceContext) {
+    public JSONObject createResponse(ServiceState serviceState) {
         try {
 
             /* Query power status */
-            PowerManager powerManager = serviceContext.getPowerManager();
+            PowerManager powerManager = serviceState.getPowerManager();
             JSONObject result = new JSONObject();
             result.put("CapacityLevel", powerManager.getBatteryLevel());
 

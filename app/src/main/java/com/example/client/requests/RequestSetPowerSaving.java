@@ -1,6 +1,6 @@
 package com.example.client.requests;
 
-import com.example.client.services.ServiceContext;
+import com.example.client.services.ServiceState;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,8 +19,8 @@ public class RequestSetPowerSaving extends Request {
     }
 
     @Override
-    public JSONObject createResponse(ServiceContext serviceContext) {
-        serviceContext.getPreferenceManager().setPowerSaving(Enable);
+    public JSONObject createResponse(ServiceState serviceState) {
+        serviceState.getPreferenceManager().setPowerSaving(Enable);
         /* TODO: Implement this method if you like */
         return createFailedResponse(requestName, "Request Not Supported");
     }

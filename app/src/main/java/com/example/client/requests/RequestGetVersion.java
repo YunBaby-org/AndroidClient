@@ -3,7 +3,7 @@ package com.example.client.requests;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 
-import com.example.client.services.ServiceContext;
+import com.example.client.services.ServiceState;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,9 +20,9 @@ public class RequestGetVersion extends Request {
     }
 
     @Override
-    public JSONObject createResponse(ServiceContext serviceContext) {
+    public JSONObject createResponse(ServiceState serviceState) {
         try {
-            Context context = serviceContext.getContext();
+            Context context = serviceState.getContext();
             PackageInfo info = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
 
             JSONObject result = new JSONObject();

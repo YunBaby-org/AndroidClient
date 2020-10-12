@@ -17,6 +17,7 @@ import java.util.concurrent.TimeoutException;
 
 /* This class create a AMQP consumer */
 /* It must run on different thread */
+@Deprecated
 public class AmqpHandler {
     private final static int AMQP_CONSUMER_PREFETCH_LIMIT = 2;
 

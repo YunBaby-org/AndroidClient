@@ -25,7 +25,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class GpsLocationManager {
+public class GpsLocationManager implements IHealthCheckable {
 
     private FusedLocationProviderClient fusedLocationProviderClient;
     private Looper workerLooper;
@@ -58,7 +58,7 @@ public class GpsLocationManager {
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, callback, workerLooper);
     }
 
-    public boolean isProviderEnbaled() {
+    public boolean isProviderEnable() {
         boolean GPS = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         boolean NET = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
         return GPS && NET;
@@ -66,7 +66,7 @@ public class GpsLocationManager {
 
     public Location getLastLocation() throws SecurityException, InterruptedException, ExecutionException, TimeoutException, OutdatedLocationException, LocationProviderDisabledException {
         /* Test if the provider is enabled */
-        if (!isProviderEnbaled())
+        if (!isProviderEnable())
             throw new LocationProviderDisabledException();
         /* Query the availability of location */
         Task<LocationAvailability> taskAvailability = fusedLocationProviderClient.getLocationAvailability();
@@ -75,9 +75,10 @@ public class GpsLocationManager {
 
         /* If the location availability meet the requirement we set at LocationRequest, we pass the location */
         /* Otherwise we raise a exception as the last known location is probably out-dated */
-        LocationAvailability availability = Tasks.await(taskAvailability, 3000, TimeUnit.MILLISECONDS);
+        LocationAvailability availability = Tasks.await(taskAvailability, 2500, TimeUnit.MILLISECONDS);
+        /* TODO: Sometime the GPS result always keeps outdated, this is a complex issue since it might related to many reason */
         if (availability.isLocationAvailable())
-            return Tasks.await(taskLocation, 3000, TimeUnit.MILLISECONDS);
+            return Tasks.await(taskLocation, 2500, TimeUnit.MILLISECONDS);
         else
             throw new OutdatedLocationException();
     }
@@ -98,6 +99,13 @@ public class GpsLocationManager {
                     Manifest.permission.ACCESS_COARSE_LOCATION,
             }, permissionRequestCode);
         }
+    }
+
+    @Override
+    public boolean healthCheck() {
+        if (!workerLooper.getThread().isAlive())
+            return false;
+        return true;
     }
 
     public class OutdatedLocationException extends Throwable {

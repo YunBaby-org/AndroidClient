@@ -10,7 +10,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.auth0.android.jwt.JWT;
-import com.example.client.amqp.AmqpChannelFactory;
 import com.example.client.manager.GpsLocationManager;
 import com.example.client.manager.PreferenceManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -74,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
     public void initializePreferences() {
         PreferenceManager pm = new PreferenceManager(this);
         if (!pm.getSharedPreferences().contains(PreferenceManager.tagAmqpHostname))
-            pm.setAmqpHostname(AmqpChannelFactory.AMQP_DEFAULT_HOSTNAME);
+            pm.setAmqpHostname(getString(R.string.AMQP_DEFAULT_HOSTNAME));
     }
 
     @Override

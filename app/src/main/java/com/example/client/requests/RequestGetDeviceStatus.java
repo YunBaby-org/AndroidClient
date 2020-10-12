@@ -1,6 +1,6 @@
 package com.example.client.requests;
 
-import com.example.client.services.ServiceContext;
+import com.example.client.services.ServiceState;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,15 +15,15 @@ public class RequestGetDeviceStatus extends Request {
     }
 
     @Override
-    public JSONObject createResponse(ServiceContext serviceContext) {
+    public JSONObject createResponse(ServiceState serviceState) {
         try {
             JSONObject result = new JSONObject();
-            result.put("TrackerID", serviceContext.getPreferenceManager().getTrackerID());
-            result.put("AutoReportGps", serviceContext.getPreferenceManager().getAutoReportGps());
-            result.put("ReportIntervalGps", serviceContext.getPreferenceManager().getReportIntervalGps());
-            result.put("AutoReportWifi", serviceContext.getPreferenceManager().getAutoReportWifi());
-            result.put("ReportIntervalWifi", serviceContext.getPreferenceManager().getReportIntervalWifi());
-            result.put("PowerSaving", serviceContext.getPreferenceManager().getPowerSaving());
+            result.put("TrackerID", serviceState.getPreferenceManager().getTrackerID());
+            result.put("AutoReportGps", serviceState.getPreferenceManager().getAutoReportGps());
+            result.put("ReportIntervalGps", serviceState.getPreferenceManager().getReportIntervalGps());
+            result.put("AutoReportWifi", serviceState.getPreferenceManager().getAutoReportWifi());
+            result.put("ReportIntervalWifi", serviceState.getPreferenceManager().getReportIntervalWifi());
+            result.put("PowerSaving", serviceState.getPreferenceManager().getPowerSaving());
             return createSuccessResponse(requestName, result);
         } catch (Exception e) {
             e.printStackTrace();

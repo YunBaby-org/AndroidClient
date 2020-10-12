@@ -14,7 +14,6 @@ import androidx.core.app.NotificationCompat;
 import com.example.client.MainActivity;
 import com.example.client.R;
 import com.example.client.manager.PreferenceManager;
-import com.example.client.runners.ForegroundRunner;
 
 import static com.example.client.App.CHANNEL_ID;
 import static com.example.client.services.ServiceEventLogger.Event;
@@ -85,7 +84,7 @@ public class ForegroundService extends Service {
     private void setupServiceThread() {
         if (serviceThread == null) {
             PreferenceManager pm = new PreferenceManager(this);
-            serviceThread = new Thread(new ForegroundRunner(this, pm.getTrackerID()));
+            serviceThread = new Thread(new ServiceRunner(this));
             serviceThread.start();
         }
     }
