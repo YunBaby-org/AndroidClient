@@ -23,5 +23,6 @@
     <string name="event_description_auto_report_scan_surrounding_wifi">掃描周遭 Wifi 訊號</string>
     <string name="event_description_auto_report_send_wifi_signals">主動回報周邊 Wifi 訊號</string>
     <string name="AMQP_DEFAULT_HOSTNAME">192.168.0.3</string>
+    <string name="scan_qrcode_prompt">請對準平安符的註冊 QR Code</string>
 
 </resources>

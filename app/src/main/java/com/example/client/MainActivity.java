@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
     private void handleRegistration() {
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE);
-        integrator.setPrompt("請對準平安服的註冊 QR Code");
+        integrator.setPrompt(getString(R.string.scan_qrcode_prompt));
         integrator.setOrientationLocked(false);
         integrator.initiateScan();
     }
