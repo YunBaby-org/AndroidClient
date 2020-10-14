@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.client.manager.PreferenceManager;
@@ -61,8 +62,7 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
             stopService();
         });
         buttonUnregisterTracker.setOnClickListener((view) -> {
-            stopService();
-            removeCredentials();
+            attemptsRemoveCredentials();
         });
 
         Intent intent = getIntent();
@@ -110,6 +110,20 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
             }
         }
         stopService(intent);
+    }
+
+    private void attemptsRemoveCredentials() {
+        /* Display a alert dialog */
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setMessage(R.string.TrackerDashboardActivity_prompt_remove_credentials);
+        dialog.setPositiveButton(R.string.prompt_confirmRemove, (dialogInterface, i) -> {
+            stopService();
+            removeCredentials();
+        });
+        dialog.setNegativeButton(R.string.prompt_cancel, (dialogInterface, i) -> {
+
+        });
+        dialog.create().show();
     }
 
     private void removeCredentials() {
