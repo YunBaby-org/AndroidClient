@@ -27,5 +27,7 @@
     <string name="TrackerDashboardActivity_prompt_remove_credentials">是否要移除目前的平安符憑證?</string>
     <string name="prompt_confirmRemove">確定移除</string>
     <string name="prompt_cancel">取消</string>
+    <string name="prompt_confirmStop">確定停止</string>
+    <string name="TrackerDashboardActivity_prompt_stop_tracking">是否要停止追蹤平安符?</string>
 
 </resources>

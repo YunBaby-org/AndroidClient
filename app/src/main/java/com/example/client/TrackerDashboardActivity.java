@@ -59,7 +59,7 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
             startService();
         });
         buttonDisableService.setOnClickListener((view) -> {
-            stopService();
+            attemptsStopService();
         });
         buttonUnregisterTracker.setOnClickListener((view) -> {
             attemptsRemoveCredentials();
@@ -97,6 +97,18 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
     public void bindToService() {
         Intent intent = new Intent(TrackerDashboardActivity.this, ForegroundService.class);
         bindService(intent, this, Context.BIND_AUTO_CREATE);
+    }
+
+    private void attemptsStopService() {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setMessage(R.string.TrackerDashboardActivity_prompt_stop_tracking);
+        dialog.setPositiveButton(R.string.prompt_confirmStop, (dialogInterface, i) -> {
+            stopService();
+        });
+        dialog.setNegativeButton(R.string.prompt_cancel, (dialogInterface, i) -> {
+
+        });
+        dialog.create().show();
     }
 
     public void stopService() {
