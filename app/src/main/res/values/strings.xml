@@ -1,8 +1,5 @@
 <resources>
-    <string name="app_name">client</string>
-    <string name="btn_idle">sign in</string>
-    <string name="btn_complete">complete</string>
-    <string name="btn_error">error</string>
+    <string name="app_name">追蹤平安符</string>
     <string name="notification_channel_name">Foreground Service</string>
     <string name="notification_channel_description">失智症老人追蹤平安符</string>
     <string name="foreground_service_tracking_title">平安符追蹤中</string>
@@ -17,17 +14,17 @@
     <string name="amqp_port_hint">AMQP 服務器 Port</string>
     <string name="defaultHttpServer">192.168.0.3</string>
     <string name="main_activity_tracker_registration_cancelled">平安符註冊中斷</string>
-    <string name="main_activity_tracker_registartion_please_wait">處理中，請稍候...</string>
+    <string name="main_activity_tracker_registartion_please_wait">請稍候…</string>
     <string name="main_activity_tracker_registration_successful">平安符註冊成功</string>
     <string name="event_description_auto_report_gps">主動回報 GPS 位置</string>
     <string name="event_description_auto_report_scan_surrounding_wifi">掃描周遭 Wifi 訊號</string>
     <string name="event_description_auto_report_send_wifi_signals">主動回報周邊 Wifi 訊號</string>
     <string name="AMQP_DEFAULT_HOSTNAME">192.168.0.3</string>
     <string name="scan_qrcode_prompt">請對準平安符的註冊 QR Code</string>
-    <string name="TrackerDashboardActivity_prompt_remove_credentials">是否要移除目前的平安符憑證?</string>
+    <string name="TrackerDashboardActivity_prompt_remove_credentials">是否移除平安符憑證?</string>
     <string name="prompt_confirmRemove">確定移除</string>
     <string name="prompt_cancel">取消</string>
     <string name="prompt_confirmStop">確定停止</string>
-    <string name="TrackerDashboardActivity_prompt_stop_tracking">是否要停止追蹤平安符?</string>
+    <string name="TrackerDashboardActivity_prompt_stop_tracking">是否中止追蹤?</string>
 
 </resources>

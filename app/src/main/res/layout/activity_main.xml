@@ -5,13 +5,11 @@
     android:id="@+id/weed"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="#ffffff"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
     <LinearLayout
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -22,22 +20,23 @@
             android:id="@+id/textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="80dp"
             android:fontFamily="@font/gotham"
             android:gravity="center"
             android:text="失智症家屬關護平安符"
             android:textColor="@color/colorAccent"
-            android:layout_marginBottom="80dp"
             android:textSize="32sp" />
 
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonStartRegistration"
-            android:layout_gravity="center"
             android:layout_width="280dp"
             android:layout_height="50dp"
+            android:layout_gravity="center"
             android:fontFamily="@font/gotham"
             android:text="註冊平安符"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            app:cornerRadius="30dp" />
 
     </LinearLayout>
 
@@ -50,11 +49,8 @@
         android:elevation="2dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:srcCompat="@drawable/ic_setting_fab"
         app:maxImageSize="32dp"
-        android:contentDescription="Setting"
-        android:layout_margin="35px" />
+        app:srcCompat="@drawable/ic_setting_fab" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

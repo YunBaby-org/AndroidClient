@@ -63,7 +63,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonAppSettings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -71,7 +71,7 @@
             android:layout_marginBottom="5px"
             android:text="設定" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonEnableService"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -79,7 +79,7 @@
             android:layout_marginBottom="5px"
             android:text="啟動服務" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonDisableService"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -87,7 +87,7 @@
             android:layout_marginBottom="5px"
             android:text="關閉服務" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonUnregisterTracker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
