@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private String privateImagePath;
     private Button buttonStartRegistration;
     private FloatingActionButton fab;
-    private View snackBar;
+    private View activityLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +47,8 @@ public class MainActivity extends AppCompatActivity {
         initializePreferences();
 
         /* Hook up views */
-        this.snackBar = findViewById(R.id.main_activity_snackbar);
         this.buttonStartRegistration = findViewById(R.id.buttonStartRegistration);
+        this.activityLayout = findViewById(R.id.weed);
         this.fab = findViewById(R.id.fab);
 
         /* Register events */
@@ -89,11 +89,11 @@ public class MainActivity extends AppCompatActivity {
         if (result != null) {
             if (result.getContents() != null) {
                 Log.i("MainActivity", result.getContents());
-                Snackbar.make(snackBar, R.string.main_activity_tracker_registartion_please_wait, Snackbar.LENGTH_LONG).show();
+                Snackbar.make(activityLayout, R.string.main_activity_tracker_registartion_please_wait, Snackbar.LENGTH_SHORT).show();
                 handleRegistration2(result.getContents());
             } else {
                 Log.w("MainActivity", "Registration cancelled");
-                Snackbar.make(snackBar, R.string.main_activity_tracker_registration_cancelled, Snackbar.LENGTH_LONG).show();
+                Snackbar.make(activityLayout, R.string.main_activity_tracker_registration_cancelled, Snackbar.LENGTH_LONG).show();
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
@@ -130,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
                 Log.e("MainActivity", "Failed to register");
                 this.runOnUiThread(() -> {
-                    Snackbar.make(snackBar, "無法取得憑證", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(activityLayout, "無法取得憑證", Snackbar.LENGTH_LONG).show();
                 });
             }
         });
@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
             gotoTrackerDashboard(getString(R.string.main_activity_tracker_registration_successful));
         } catch (Exception e) {
             e.printStackTrace();
-            Snackbar.make(snackBar, "無法設定憑證資料", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(activityLayout, "無法設定憑證資料", Snackbar.LENGTH_LONG).show();
         }
     }
 

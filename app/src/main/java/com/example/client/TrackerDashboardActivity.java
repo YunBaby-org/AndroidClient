@@ -27,7 +27,7 @@ import com.google.android.material.snackbar.Snackbar;
 public class TrackerDashboardActivity extends AppCompatActivity implements ServiceConnection, ServiceEventLogger.IServiceEventListener {
 
     public static final String INTENT_DISPLAY_CONTENT = "intentDisplayContent";
-    private View snackbar;
+    private View activityLayout;
     private TextView textViewTrackerID;
     private LinearLayout eventLayout;
     private Button buttonDisableService;
@@ -43,7 +43,7 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
 
         pm = new PreferenceManager(this);
 
-        snackbar = findViewById(R.id.activity_tracker_dashboard_snackbar);
+        activityLayout = findViewById(R.id.activity_tracker_dashboard_layout);
         textViewTrackerID = findViewById(R.id.textviewTrackerID);
         Button buttonEnableService = findViewById(R.id.buttonEnableService);
         buttonDisableService = findViewById(R.id.buttonDisableService);
@@ -68,7 +68,7 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
         Intent intent = getIntent();
         String displayText = intent.getStringExtra(TrackerDashboardActivity.INTENT_DISPLAY_CONTENT);
         if (displayText != null && !displayText.equals("")) {
-            Snackbar.make(snackbar, displayText, Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(activityLayout, displayText, Snackbar.LENGTH_SHORT).show();
         }
     }
 
