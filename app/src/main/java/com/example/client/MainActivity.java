@@ -12,7 +12,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.auth0.android.jwt.JWT;
 import com.example.client.manager.GpsLocationManager;
 import com.example.client.manager.PreferenceManager;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
@@ -36,8 +35,8 @@ public class MainActivity extends AppCompatActivity {
     private File imageFile;
     private String privateImagePath;
     private Button buttonStartRegistration;
-    private FloatingActionButton fab;
     private View activityLayout;
+    private Button buttonSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,13 +48,13 @@ public class MainActivity extends AppCompatActivity {
         /* Hook up views */
         this.buttonStartRegistration = findViewById(R.id.buttonStartRegistration);
         this.activityLayout = findViewById(R.id.weed);
-        this.fab = findViewById(R.id.fab);
+        this.buttonSettings = findViewById(R.id.buttonSettings);
 
         /* Register events */
         this.buttonStartRegistration.setOnClickListener(view -> {
             handleRegistration();
         });
-        this.fab.setOnClickListener(view -> {
+        this.buttonSettings.setOnClickListener(view -> {
             gotoSettings();
         });
 
