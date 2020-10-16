@@ -11,11 +11,14 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -32,9 +35,24 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
     private LinearLayout eventLayout;
     private Button buttonDisableService;
     private Button buttonUnregisterTracker;
-    private Button buttonAppSettings;
     private PreferenceManager pm;
     private Boolean isServiceBindingOk = false;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.tracker_activity_actionbar_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.menu_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,14 +66,9 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
         textViewTrackerID = findViewById(R.id.textviewTrackerID);
         Button buttonEnableService = findViewById(R.id.buttonEnableService);
         buttonDisableService = findViewById(R.id.buttonDisableService);
-        buttonAppSettings = findViewById(R.id.buttonAppSettings);
         buttonUnregisterTracker = findViewById(R.id.buttonUnregisterTracker);
         eventLayout = findViewById(R.id.EventLayout);
 
-        buttonAppSettings.setOnClickListener((view) -> {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
-        });
         buttonEnableService.setOnClickListener((view) -> {
             startService();
         });

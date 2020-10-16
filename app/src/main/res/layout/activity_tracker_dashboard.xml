@@ -74,14 +74,6 @@
             android:layout_height="wrap_content">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/buttonAppSettings"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5px"
-                android:layout_marginBottom="5px"
-                android:text="設定" />
-
-            <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonEnableService"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
