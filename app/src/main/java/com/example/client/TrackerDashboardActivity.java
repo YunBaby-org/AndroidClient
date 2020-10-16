@@ -40,6 +40,7 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tracker_dashboard);
+        setSupportActionBar(findViewById(R.id.actionBar));
 
         pm = new PreferenceManager(this);
 
