@@ -31,10 +31,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity
-            android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings"></activity>
-        <activity android:name=".TrackerDashboardActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -42,7 +38,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity android:name=".TrackerDashboardActivity" />
+        <activity
+            android:name=".SettingsActivity"
+            android:parentActivityName=".TrackerDashboardActivity"
+            android:label="@string/title_activity_settings">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".TrackerDashboardActivity" />
+        </activity>
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="fullSensor"
