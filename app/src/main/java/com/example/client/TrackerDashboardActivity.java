@@ -218,10 +218,10 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
     public void onEventOccurred(ServiceEventLogger.Event e) {
         runOnUiThread(() -> {
             String info = e.getContent() == null ? getString(e.getContentId()) : e.getContent();
-            TextView tv = new TextView(this);
-            tv.setText(String.format("[%s] %s", e.getLevel().toString(), info));
-            tv.setTextColor(Color.argb(0xff, 0x14, 0x14, 0x14));
-            eventLayout.addView(tv);
+            // TextView tv = new TextView(this);
+            // tv.setText(String.format("[%s] %s", e.getLevel().toString(), info));
+            // tv.setTextColor(Color.argb(0xff, 0x14, 0x14, 0x14));
+            // eventLayout.addView(tv);
         });
     }
 }

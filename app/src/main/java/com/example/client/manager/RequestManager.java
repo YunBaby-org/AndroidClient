@@ -2,9 +2,11 @@ package com.example.client.manager;
 
 import android.util.Log;
 
+import com.example.client.R;
 import com.example.client.amqp.AmqpUtility;
 import com.example.client.requests.Request;
 import com.example.client.requests.RequestFactory;
+import com.example.client.room.entity.Event;
 import com.example.client.services.ServiceState;
 import com.rabbitmq.client.CancelCallback;
 import com.rabbitmq.client.Channel;
@@ -94,6 +96,9 @@ public class RequestManager implements ShutdownListener, DeliverCallback, Cancel
             if (request == null)
                 throw new UnknownRequestFormat("The given JSON object doesn't fit in any format of request");
             Log.i("Consumer", "Consumer receive a " + request.getName() + " request");
+
+            com.example.client.room.entity.Event event = Event.request(R.string.event_title_receive_request, request.getName());
+            serviceState.getAppDatabase().eventDao().insertAll(event);
 
             /* Execute the request with the help of all these serviceState. */
             JSONObject response = request.createResponse(serviceState);

@@ -11,6 +11,7 @@ import com.example.client.R;
 import com.example.client.amqp.AmqpUtility;
 import com.example.client.requests.RequestScanGPS;
 import com.example.client.requests.RequestScanWifiSignal;
+import com.example.client.room.AppDatabase;
 import com.example.client.services.ForegroundService;
 import com.rabbitmq.client.Channel;
 
@@ -26,6 +27,7 @@ public class AutoReportManager implements IHealthCheckable {
     private WirelessSignalManager wirelessSignalManager;
     private GpsLocationManager gpsLocationManager;
     private PreferenceManager preferenceManager;
+    private AppDatabase appDatabase;
     private Channel amqpChannel;
     private Handler handler;
     private String trackerId;
@@ -35,7 +37,13 @@ public class AutoReportManager implements IHealthCheckable {
     private final static int AUTO_REPORT_WIFI_MESSAGE_TYPE_GET_RESULT = 2;
 
     /* TODO: Refactor this shitty code */
-    public AutoReportManager(Channel amqpChannel, Looper looper, GpsLocationManager gpsLocationManager, WirelessSignalManager wirelessSignalManager, PreferenceManager preferenceManager) {
+    public AutoReportManager(Channel amqpChannel,
+                             Looper looper,
+                             GpsLocationManager gpsLocationManager,
+                             WirelessSignalManager wirelessSignalManager,
+                             PreferenceManager preferenceManager,
+                             AppDatabase appDatabase) {
+        this.appDatabase = appDatabase;
         this.wirelessSignalManager = wirelessSignalManager;
         this.gpsLocationManager = gpsLocationManager;
         this.preferenceManager = preferenceManager;
@@ -84,6 +92,9 @@ public class AutoReportManager implements IHealthCheckable {
             Log.d("AutoReportManager", "Auto Report Current GPS Location");
 
             ForegroundService.emitEvent(Event.Info(R.string.event_description_auto_report_gps));
+            appDatabase.eventDao().insertAll(
+                    com.example.client.room.entity.Event.response(R.string.event_description_auto_report_gps, "自動回報 GPS 位置")
+            );
         }
         /* Next pending operation */
         handler.sendEmptyMessageDelayed(AutoReportManager.AUTO_REPORT_GPS_MESSAGE_TYPE, getIntervalGps());

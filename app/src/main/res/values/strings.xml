@@ -26,5 +26,6 @@
     <string name="prompt_cancel">取消</string>
     <string name="prompt_confirmStop">確定停止</string>
     <string name="TrackerDashboardActivity_prompt_stop_tracking">是否中止追蹤?</string>
+    <string name="event_title_receive_request">收到 Request</string>
 
 </resources>
