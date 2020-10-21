@@ -26,8 +26,6 @@ public class ServiceRunner implements Runnable {
         serviceState = new ServiceState(context);
 
         while (keepServiceThreadRunning) {
-            /* Delay for a while */
-            if (sleep(5000)) break;
 
             ForegroundService.emitEvent(ServiceEventLogger.Event.Info("啟動服務"));
             if (!initializeServiceContext()) {
@@ -50,6 +48,9 @@ public class ServiceRunner implements Runnable {
                     break;
                 }
             }
+
+            /* Delay for a while before restart service */
+            if (keepServiceThreadRunning && sleep(5000)) break;
 
             releaseServiceContext();
         }
