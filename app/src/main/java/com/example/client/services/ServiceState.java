@@ -11,6 +11,7 @@ import com.example.client.manager.PowerManager;
 import com.example.client.manager.PreferenceManager;
 import com.example.client.manager.RequestManager;
 import com.example.client.manager.WirelessSignalManager;
+import com.example.client.room.AppDatabase;
 import com.google.android.gms.location.LocationRequest;
 
 import org.json.JSONException;
@@ -37,6 +38,12 @@ public class ServiceState {
     private WirelessSignalManager wirelessSignalManager;
     private AutoReportManager autoReportManager;
 
+    public AppDatabase getAppDatabase() {
+        return appDatabase;
+    }
+
+    private AppDatabase appDatabase;
+
     private RequestManager requestManager;
 
     public ServiceState(Context context) {
@@ -44,6 +51,7 @@ public class ServiceState {
     }
 
     public void initialize() throws IOException, AmqpAuthentication.BadRequestException, JSONException, TimeoutException {
+        this.appDatabase = AppDatabase.getDatabase(context);
         this.workerThread = new HandlerThread("Worker Thread");
         this.workerThread.start();
         this.workerThread2 = new HandlerThread("Worker Thread2");
@@ -69,7 +77,8 @@ public class ServiceState {
                 workerThread.getLooper(),
                 gpsLocationManager,
                 wirelessSignalManager,
-                preferenceManager);
+                preferenceManager,
+                appDatabase);
         this.requestManager = new RequestManager(
                 this.preferenceManager.getTrackerID(),
                 amqpConnectionManager.getConnection().createChannel(),
