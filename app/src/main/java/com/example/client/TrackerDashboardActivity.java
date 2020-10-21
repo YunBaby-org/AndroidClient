@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -15,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -32,6 +34,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -46,7 +49,7 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
     public static final String INTENT_DISPLAY_CONTENT = "intentDisplayContent";
     private LineChart lineChart;
     private View activityLayout;
-    private Button buttonDisableService;
+    private FloatingActionButton fab;
     private Button buttonUnregisterTracker;
     private PreferenceManager pm;
     private Boolean isServiceBindingOk = false;
@@ -78,16 +81,12 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
         pm = new PreferenceManager(this);
 
         activityLayout = findViewById(R.id.activity_tracker_dashboard_layout);
-        lineChart = findViewById(R.id.lineChart);
-        Button buttonEnableService = findViewById(R.id.buttonEnableService);
-        buttonDisableService = findViewById(R.id.buttonDisableService);
         buttonUnregisterTracker = findViewById(R.id.buttonUnregisterTracker);
+        lineChart = findViewById(R.id.lineChart);
+        fab = findViewById(R.id.fab);
 
-        buttonEnableService.setOnClickListener((view) -> {
-            startService();
-        });
-        buttonDisableService.setOnClickListener((view) -> {
-            attemptsStopService();
+        fab.setOnClickListener((view) -> {
+            switchServiceOnOff();
         });
         buttonUnregisterTracker.setOnClickListener((view) -> {
             attemptsRemoveCredentials();
@@ -101,6 +100,15 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
             Snackbar.make(activityLayout, displayText, Snackbar.LENGTH_SHORT).show();
         }
 
+        updateServiceIcon(isMyServiceRunning(ForegroundService.class));
+        runServiceStateCheck = checkServiceState(5000, true);
+    }
+
+    private void switchServiceOnOff() {
+        if (isMyServiceRunning(ForegroundService.class))
+            attemptsStopService();
+        else
+            startService();
     }
 
     private void initializeLineChart() {
@@ -247,11 +255,48 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
         super.onResume();
     }
 
+    private Runnable runServiceStateCheck;
+
     public void startService() {
-        Intent intent = new Intent(TrackerDashboardActivity.this, ForegroundService.class);
-        pm.setServiceAutoRestart(true);
-        startService(intent);
-        attemptsBinding();
+        if (isMyServiceRunning(ForegroundService.class)) {
+            Toast.makeText(this, "服務已啟動", Toast.LENGTH_SHORT).show();
+        } else {
+            Intent intent = new Intent(TrackerDashboardActivity.this, ForegroundService.class);
+            pm.setServiceAutoRestart(true);
+            startService(intent);
+            attemptsBinding();
+
+            checkServiceState(100, false);
+            checkServiceState(500, false);
+        }
+    }
+
+    private Runnable checkServiceState(int msInterval, boolean repeat) {
+        Handler handler = new Handler(getMainLooper());
+        /* Create a runnable, perform fab icon update at certain point */
+        Runnable run = (Runnable) () -> {
+            runOnUiThread((Runnable) () -> {
+                updateServiceIcon(isMyServiceRunning(ForegroundService.class));
+            });
+            if (repeat)
+                checkServiceState(msInterval, true);
+        };
+        handler.postDelayed(run, msInterval);
+        return run;
+    }
+
+    /* WARNING: The default value of lastEnabledValue must match the icon of layout fab */
+    private boolean lastEnabledValue = true;
+
+    private void updateServiceIcon(boolean isEnabled) {
+        if (isEnabled != lastEnabledValue) {
+            lastEnabledValue = isEnabled;
+            /* There is a bug in Android Material Design fab library, we have to call hide/show to refresh the icon */
+            fab.hide();
+            Drawable drawable = getDrawable(isEnabled ? R.drawable.ic_location_enabled : R.drawable.ic_location_disabled);
+            fab.setImageDrawable(drawable);
+            fab.show();
+        }
     }
 
     public void bindToService() {
@@ -282,6 +327,8 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
             }
         }
         stopService(intent);
+        checkServiceState(100, false);
+        checkServiceState(500, false);
     }
 
     private void attemptsRemoveCredentials() {
