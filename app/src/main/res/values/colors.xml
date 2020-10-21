@@ -2,6 +2,14 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <color name="colorPrimary">#6200EE</color>
     <color name="colorPrimaryDark">#3700B3</color>
+    <color name="colorAccentLight3">#22FCE6</color>
+    <color name="colorAccentLight2">#0EFBE4</color>
+    <color name="colorAccentLight1">#04F1D9</color>
     <color name="colorAccent">#03DAC5</color>
+    <color name="colorAccentDeep1">#03C9B5</color>
+    <color name="colorAccentDeep2">#03B5A3</color>
+    <color name="colorAccentDeep3">#02A191</color>
     <color name="design_snackbar_background_color" tools:override="true">@color/colorPrimary</color>
+    <color name="colorChartRequestLine">#d0ffffff</color>
+    <color name="colorChartResponseLine">#d0ffffff</color>
 </resources>

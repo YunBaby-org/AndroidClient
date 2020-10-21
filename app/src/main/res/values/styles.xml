@@ -9,4 +9,9 @@
         <item name="android:textSize">16sp</item>
     </style>
 
+    <style name="WhiteActionBarTitle" parent="@style/TextAppearance.Design.CollapsingToolbar.Expanded">
+        <item name="android:textColor">#ffffff</item>
+
+    </style>
+
 </resources>
