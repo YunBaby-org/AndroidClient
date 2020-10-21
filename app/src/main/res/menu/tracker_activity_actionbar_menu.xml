@@ -6,4 +6,9 @@
         android:icon="@drawable/ic_setting_fab"
         android:title="設定"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menu_remove_credentials"
+        android:title="移除平安符"
+        app:showAsAction="never" />
 </menu>

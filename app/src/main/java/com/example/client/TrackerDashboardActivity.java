@@ -15,7 +15,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -50,7 +49,6 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
     private LineChart lineChart;
     private View activityLayout;
     private FloatingActionButton fab;
-    private Button buttonUnregisterTracker;
     private PreferenceManager pm;
     private Boolean isServiceBindingOk = false;
     private static final int CHART_DATASET_SEND_RESPONSE = 0;
@@ -64,10 +62,14 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.menu_settings) {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
-            return true;
+        switch (item.getItemId()) {
+            case R.id.menu_settings:
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.menu_remove_credentials:
+                attemptsRemoveCredentials();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -81,15 +83,11 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
         pm = new PreferenceManager(this);
 
         activityLayout = findViewById(R.id.activity_tracker_dashboard_layout);
-        buttonUnregisterTracker = findViewById(R.id.buttonUnregisterTracker);
         lineChart = findViewById(R.id.lineChart);
         fab = findViewById(R.id.fab);
 
         fab.setOnClickListener((view) -> {
             switchServiceOnOff();
-        });
-        buttonUnregisterTracker.setOnClickListener((view) -> {
-            attemptsRemoveCredentials();
         });
 
         initializeLineChart();
@@ -101,6 +99,7 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
         }
 
         updateServiceIcon(isMyServiceRunning(ForegroundService.class));
+        /* TODO: Does this thing keep running even after activity exit or stop? */
         runServiceStateCheck = checkServiceState(5000, true);
     }
 
