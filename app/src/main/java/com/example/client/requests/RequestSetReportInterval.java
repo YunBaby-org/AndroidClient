@@ -2,13 +2,13 @@ package com.example.client.requests;
 
 import android.util.Log;
 
+import com.example.client.R;
+import com.example.client.room.entity.Event;
 import com.example.client.services.ForegroundService;
 import com.example.client.services.ServiceState;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import static com.example.client.services.ServiceEventLogger.Event;
 
 public class RequestSetReportInterval extends Request {
 
@@ -34,11 +34,17 @@ public class RequestSetReportInterval extends Request {
             switch (Target) {
                 case GPS:
                     serviceState.getPreferenceManager().setReportIntervalGps(interval);
-                    ForegroundService.emitEvent(Event.Info("更新 GPS 回報間隔為 " + interval));
+                    ForegroundService.emitEvent(com.example.client.services.ServiceEventLogger.Event.Info("更新 GPS 回報間隔為 " + interval));
+                    serviceState.getAppDatabase().eventDao().insertAll(
+                            Event.debug(R.string.event_description_update_gps_report_interval)
+                    );
                     break;
                 case WIFI:
                     serviceState.getPreferenceManager().setReportIntervalWifi(interval);
-                    ForegroundService.emitEvent(Event.Info("更新 Wifi 回報間隔為 " + interval));
+                    ForegroundService.emitEvent(com.example.client.services.ServiceEventLogger.Event.Info("更新 Wifi 回報間隔為 " + interval));
+                    serviceState.getAppDatabase().eventDao().insertAll(
+                            Event.debug(R.string.event_description_update_wifi_report_interval)
+                    );
                     break;
                 default:
                     Log.wtf("RequestSetReportInterval", "Unknown target");

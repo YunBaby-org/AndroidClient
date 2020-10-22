@@ -29,5 +29,14 @@
     <string name="event_title_receive_request">收到 Request</string>
     <string name="action_bar_title_service_enabled">平安符運作中</string>
     <string name="action_bar_title_service_disabled">平安符已關閉</string>
+    <string name="event_description_enable_service">啟動服務</string>
+    <string name="event_description_enable_service_failed">平安符啟動失敗</string>
+    <string name="event_description_warn_service_failure">平安符狀態異常, 重新啟動</string>
+    <string name="event_description_enable_auto_report_gps">開啟 GPS 自動回報</string>
+    <string name="event_description_disable_gps_auto_report">關閉 GPS 自動回報</string>
+    <string name="event_description_enable_wifi_auto_report">開啟 Wi-Fi 訊號自動回報</string>
+    <string name="event_description_disable_wifi_auto_report">關閉 Wi-Fi 訊號自動回報</string>
+    <string name="event_description_update_gps_report_interval">更新 GPS 回報間隔</string>
+    <string name="event_description_update_wifi_report_interval">更新 Wi-Fi 訊號回報間格</string>
 
 </resources>
