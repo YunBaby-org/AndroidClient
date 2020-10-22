@@ -16,10 +16,10 @@ public interface EventDao {
     @Query("SELECT count(*) FROM Event WHERE type = :type AND time BETWEEN :since AND :until")
     int countItem(EventType type, Date since, Date until);
 
-    @Query("SELECT * FROM Event LIMIT :limit")
+    @Query("SELECT * FROM Event ORDER BY time DESC LIMIT :limit")
     List<Event> getEvents(int limit);
 
-    @Query("SELECT * FROM Event WHERE time >= :since LIMIT :limit")
+    @Query("SELECT * FROM Event WHERE time >= :since ORDER BY time DESC LIMIT :limit")
     List<Event> getEventsSince(Date since, int limit);
 
     @Insert

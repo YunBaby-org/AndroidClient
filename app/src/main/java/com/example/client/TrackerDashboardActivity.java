@@ -20,13 +20,17 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.client.manager.PreferenceManager;
 import com.example.client.room.AppDatabase;
+import com.example.client.room.entity.Event;
 import com.example.client.room.ulility.EventType;
 import com.example.client.services.ForegroundService;
 import com.example.client.services.ServiceEventLogger;
 import com.example.client.views.ChartMarkerView;
+import com.example.client.views.EventRecyclerViewAdapter;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.Entry;
@@ -39,12 +43,14 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class TrackerDashboardActivity extends AppCompatActivity implements ServiceConnection, ServiceEventLogger.IServiceEventListener {
 
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private ExecutorService executorService = Executors.newFixedThreadPool(2);
     public static final String INTENT_DISPLAY_CONTENT = "intentDisplayContent";
     private LineChart lineChart;
     private View activityLayout;
@@ -53,6 +59,12 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
     private Boolean isServiceBindingOk = false;
     private static final int CHART_DATASET_SEND_RESPONSE = 0;
     private static final int CHART_DATASET_RECEIVE_REQUEST = 1;
+
+    private ArrayList<Event> events;
+    private RecyclerView recyclerView;
+    private RecyclerView.Adapter recyclerAdapter;
+    private RecyclerView.LayoutManager layoutManager;
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -92,11 +104,21 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
 
         initializeLineChart();
 
+        /* Display information on startup */
         Intent intent = getIntent();
         String displayText = intent.getStringExtra(TrackerDashboardActivity.INTENT_DISPLAY_CONTENT);
         if (displayText != null && !displayText.equals("")) {
             Snackbar.make(activityLayout, displayText, Snackbar.LENGTH_SHORT).show();
         }
+
+        /* Hook up recycler view */
+        events = new ArrayList<Event>();
+        layoutManager = new LinearLayoutManager(this);
+        recyclerAdapter = new EventRecyclerViewAdapter(this, events);
+        recyclerView = findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(recyclerAdapter);
+        /* TODO: Apply theme transition during on/off */
 
         updateServiceIcon(isMyServiceRunning(ForegroundService.class));
         /* TODO: Does this thing keep running even after activity exit or stop? */
@@ -211,15 +233,35 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
                 AppDatabase appDatabase = AppDatabase.getDatabase(TrackerDashboardActivity.this);
                 int countResponse = appDatabase.eventDao().countItem(EventType.SEND_RESPONSE, last10Sec, current);
                 int countRequest = appDatabase.eventDao().countItem(EventType.RECEIVE_REQUEST, last10Sec, current);
+                List<Event> newEvents = appDatabase.eventDao().getEventsSince(last10Sec, 100);
+                events.addAll(0, newEvents);
 
                 /* Update */
                 runOnUiThread((Runnable) () -> {
                     updateChartItem(countResponse, countRequest);
+                    updateEventViewTime();
+                    recyclerAdapter.notifyItemRangeInserted(0, newEvents.size());
                     setupUpdateEvent();                 /* Repeat itself */
                 });
             });
         }, 1000);
     }
+
+    private void updateEventViewTime() {
+        int updateCount = 0;
+        for (int i = 0; i < recyclerView.getChildCount(); i++) {
+            RecyclerView.ViewHolder holder = recyclerView.getChildViewHolder(recyclerView.getChildAt(i));
+            if (holder instanceof EventRecyclerViewAdapter.EventViewHolder) {
+                boolean updated = ((EventRecyclerViewAdapter.EventViewHolder) holder).updateTime(this);
+                if (updated)
+                    updateCount++;
+            } else {
+                Log.wtf("TrackerDashboardActivity", "Holder is not a instance of EventViewHolder, WTF?");
+            }
+        }
+        Log.d("TrackerDashboardActivity", String.format(Locale.getDefault(), "Event %d view(s) updated", updateCount));
+    }
+
 
     private void updateChartItem(float countResponse, float countRequest) {
         LineData lineData = lineChart.getData();
