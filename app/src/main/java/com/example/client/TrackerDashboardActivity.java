@@ -20,6 +20,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -37,6 +38,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -59,6 +61,8 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
     private Boolean isServiceBindingOk = false;
     private static final int CHART_DATASET_SEND_RESPONSE = 0;
     private static final int CHART_DATASET_RECEIVE_REQUEST = 1;
+    private Toolbar toolbar;
+    private CollapsingToolbarLayout collapsingToolbarLayout;
 
     private ArrayList<Event> events;
     private RecyclerView recyclerView;
@@ -94,6 +98,8 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
 
         pm = new PreferenceManager(this);
 
+        toolbar = findViewById(R.id.actionBar);
+        collapsingToolbarLayout = findViewById(R.id.collapsingToolbarLayout);
         activityLayout = findViewById(R.id.activity_tracker_dashboard_layout);
         lineChart = findViewById(R.id.lineChart);
         fab = findViewById(R.id.fab);
@@ -120,7 +126,7 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
         recyclerView.setAdapter(recyclerAdapter);
         /* TODO: Apply theme transition during on/off */
 
-        updateServiceIcon(isMyServiceRunning(ForegroundService.class));
+        updateServiceUI(isMyServiceRunning(ForegroundService.class), true);
         /* TODO: Does this thing keep running even after activity exit or stop? */
         runServiceStateCheck = checkServiceState(5000, true);
     }
@@ -294,6 +300,7 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
     @Override
     protected void onResume() {
         super.onResume();
+        updateServiceUI(isMyServiceRunning(ForegroundService.class), true);
     }
 
     private Runnable runServiceStateCheck;
@@ -317,7 +324,7 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
         /* Create a runnable, perform fab icon update at certain point */
         Runnable run = (Runnable) () -> {
             runOnUiThread((Runnable) () -> {
-                updateServiceIcon(isMyServiceRunning(ForegroundService.class));
+                updateServiceUI(isMyServiceRunning(ForegroundService.class));
             });
             if (repeat)
                 checkServiceState(msInterval, true);
@@ -329,14 +336,24 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
     /* WARNING: The default value of lastEnabledValue must match the icon of layout fab */
     private boolean lastEnabledValue = true;
 
-    private void updateServiceIcon(boolean isEnabled) {
-        if (isEnabled != lastEnabledValue) {
+    private void updateServiceUI(boolean isEnabled) {
+        updateServiceUI(isEnabled, false);
+    }
+
+    private void updateServiceUI(boolean isEnabled, boolean forceUpdate) {
+        if (isEnabled != lastEnabledValue || forceUpdate) {
             lastEnabledValue = isEnabled;
             /* There is a bug in Android Material Design fab library, we have to call hide/show to refresh the icon */
             fab.hide();
-            Drawable drawable = getDrawable(isEnabled ? R.drawable.ic_location_enabled : R.drawable.ic_location_disabled);
+            int resId = isEnabled ? R.drawable.ic_location_enabled : R.drawable.ic_location_disabled;
+            Drawable drawable = getDrawable(resId);
             fab.setImageDrawable(drawable);
             fab.show();
+
+            resId = isEnabled ? R.string.action_bar_title_service_enabled : R.string.action_bar_title_service_disabled;
+            getSupportActionBar().setTitle(resId);
+            toolbar.setTitle(resId);
+            collapsingToolbarLayout.setTitle(getString(resId));
         }
     }
 

@@ -27,5 +27,7 @@
     <string name="prompt_confirmStop">確定停止</string>
     <string name="TrackerDashboardActivity_prompt_stop_tracking">是否中止追蹤?</string>
     <string name="event_title_receive_request">收到 Request</string>
+    <string name="action_bar_title_service_enabled">平安符運作中</string>
+    <string name="action_bar_title_service_disabled">平安符已關閉</string>
 
 </resources>

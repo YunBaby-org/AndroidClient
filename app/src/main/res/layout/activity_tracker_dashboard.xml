@@ -16,6 +16,7 @@
         android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsingToolbarLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
@@ -35,7 +36,7 @@
                 android:id="@+id/actionBar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:title="平安符"
+                app:title="@string/action_bar_title_service_disabled"
                 app:popupTheme="@style/Widget.AppCompat.PopupMenu">
 
             </androidx.appcompat.widget.Toolbar>
