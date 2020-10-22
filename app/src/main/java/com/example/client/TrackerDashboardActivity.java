@@ -61,6 +61,7 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
     private Boolean isServiceBindingOk = false;
     private static final int CHART_DATASET_SEND_RESPONSE = 0;
     private static final int CHART_DATASET_RECEIVE_REQUEST = 1;
+    private AppDatabase appDatabase;
     private Toolbar toolbar;
     private CollapsingToolbarLayout collapsingToolbarLayout;
 
@@ -98,6 +99,7 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
 
         pm = new PreferenceManager(this);
 
+        appDatabase = AppDatabase.getDatabase(TrackerDashboardActivity.this);
         toolbar = findViewById(R.id.actionBar);
         collapsingToolbarLayout = findViewById(R.id.collapsingToolbarLayout);
         activityLayout = findViewById(R.id.activity_tracker_dashboard_layout);
@@ -236,7 +238,6 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
                 Date last10Sec = c.getTime();
 
                 /* Query */
-                AppDatabase appDatabase = AppDatabase.getDatabase(TrackerDashboardActivity.this);
                 int countResponse = appDatabase.eventDao().countItem(EventType.SEND_RESPONSE, last10Sec, current);
                 int countRequest = appDatabase.eventDao().countItem(EventType.RECEIVE_REQUEST, last10Sec, current);
                 List<Event> newEvents = appDatabase.eventDao().getEventsSince(last10Sec, 100);
@@ -385,6 +386,13 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
             }
         }
         stopService(intent);
+
+        executorService.submit(() -> {
+            appDatabase.eventDao().insertAll(
+                    Event.info(R.string.event_description_service_disabled)
+            );
+        });
+
         checkServiceState(100, false);
         checkServiceState(500, false);
     }

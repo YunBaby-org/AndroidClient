@@ -38,5 +38,6 @@
     <string name="event_description_disable_wifi_auto_report">關閉 Wi-Fi 訊號自動回報</string>
     <string name="event_description_update_gps_report_interval">更新 GPS 回報間隔</string>
     <string name="event_description_update_wifi_report_interval">更新 Wi-Fi 訊號回報間格</string>
+    <string name="event_description_service_disabled">手動關閉平安符服務</string>
 
 </resources>
