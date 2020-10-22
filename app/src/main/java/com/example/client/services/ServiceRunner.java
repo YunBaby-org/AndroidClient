@@ -30,6 +30,10 @@ public class ServiceRunner implements Runnable {
             ForegroundService.emitEvent(ServiceEventLogger.Event.Info("啟動服務"));
             if (!initializeServiceContext()) {
                 ForegroundService.emitEvent(ServiceEventLogger.Event.Error("啟動失敗 :("));
+                serviceState.getAppDatabase().eventDao().insertAll(
+                        Event.warning(R.string.event_description_enable_service_failed, null)
+                );
+                if (sleep(5000)) break;
                 continue;
             }
 
