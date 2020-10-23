@@ -21,8 +21,8 @@ public class Event {
     @ColumnInfo(name = "type")
     public EventType type;
 
-    @ColumnInfo(name = "title")
-    public int title;
+    @ColumnInfo(name = "eventId")
+    public int eventId;
 
     @ColumnInfo(name = "description")
     public String description;
@@ -31,16 +31,16 @@ public class Event {
     }
 
     @Ignore
-    public Event(EventType type, int title) {
+    public Event(EventType type, int eventId) {
         this.type = type;
-        this.title = title;
+        this.eventId = eventId;
         this.time = new Date();
     }
 
     @Ignore
-    public Event(EventType type, int title, String description) {
+    public Event(EventType type, int eventId, String description) {
         this.type = type;
-        this.title = title;
+        this.eventId = eventId;
         this.time = new Date();
         this.description = description;
     }

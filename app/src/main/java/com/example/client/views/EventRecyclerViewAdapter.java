@@ -43,7 +43,7 @@ public class EventRecyclerViewAdapter extends RecyclerView.Adapter<EventRecycler
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
         /* Layout Manager call this function to ask you to replace the content of the view */
         holder.event = events.get(position);
-        holder.tv.setText(context.getString(events.get(position).title));
+        holder.tv.setText(context.getString(events.get(position).eventId));
         holder.updateTime(context);
         /* Hack: this is a shame that Android provide the "state_last" for selector but never implement them */
         /*       We have to determine such condition by hard written logic below */

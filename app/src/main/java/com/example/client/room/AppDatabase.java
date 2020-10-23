@@ -2,16 +2,19 @@ package com.example.client.room;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
+import androidx.room.migration.Migration;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.example.client.room.dao.EventDao;
 import com.example.client.room.entity.Event;
 import com.example.client.room.ulility.Converters;
 
-@Database(entities = {Event.class}, version = 1)
+@Database(entities = {Event.class}, version = 2)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
     public abstract EventDao eventDao();
@@ -25,10 +28,19 @@ public abstract class AppDatabase extends RoomDatabase {
                     instance = Room.databaseBuilder(
                             context.getApplicationContext(),
                             AppDatabase.class,
-                            "app_database"
-                    ).build();
+                            "app_database")
+                            .addMigrations(MIGRATION_1_2)
+                            .build();
             }
         }
         return instance;
     }
+
+    static final Migration MIGRATION_1_2 = new Migration(1, 2) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("DROP Table Event");
+            database.execSQL("CREATE TABLE Event(id INTEGER PRIMARY KEY NOT NULL, time INTEGER, type INTEGER, eventId INTEGER NOT NULL, description TEXT)");
+        }
+    };
 }
