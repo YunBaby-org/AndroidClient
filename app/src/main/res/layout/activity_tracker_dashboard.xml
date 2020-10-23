@@ -73,7 +73,8 @@
             android:layout_height="match_parent"
             android:id="@+id/recycler_view"
             android:scrollbars="vertical"
-            tools:listitem="@layout/event_view" />
+            tools:itemCount="1"
+            tools:listitem="@layout/event_view_list_demo"></androidx.recyclerview.widget.RecyclerView>
 
     </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

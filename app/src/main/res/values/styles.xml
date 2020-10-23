@@ -8,6 +8,9 @@
         <item name="android:fontFamily">@font/gotham</item>
         <item name="android:textSize">16sp</item>
         <item name="android:actionOverflowButtonStyle">@style/OverflowMoreItems</item>
+
+        <item name="timelineColor">@color/colorAccentDeep2</item>
+        <item name="timelineIconBackgroundColor">@color/colorAccent</item>
     </style>
 
     <style name="WhiteActionBarTitle" parent="@style/TextAppearance.Design.CollapsingToolbar.Expanded">
@@ -16,6 +19,31 @@
 
     <style name="OverflowMoreItems" parent="android:Widget.Material.ActionButton.Overflow">
         <item name="android:src">@drawable/ic_baseline_more_vert_24</item>
+    </style>
+
+    <style name="timelineRed">
+        <item name="timelineColor">#d6001d</item>
+        <item name="timelineIconBackgroundColor">#f55168</item>
+    </style>
+
+    <style name="timelineOrange">
+        <item name="timelineColor">#e18100</item>
+        <item name="timelineIconBackgroundColor">#ff9c17</item>
+    </style>
+
+    <style name="timelineGreen">
+        <item name="timelineColor">#4daa00</item>
+        <item name="timelineIconBackgroundColor">#72e315</item>
+    </style>
+
+    <style name="timelineBlue">
+        <item name="timelineColor">#1f2d81</item>
+        <item name="timelineIconBackgroundColor">#2f48df</item>
+    </style>
+
+    <style name="timelineDark">
+        <item name="timelineColor">#213C3B</item>
+        <item name="timelineIconBackgroundColor">#455a59</item>
     </style>
 
 </resources>

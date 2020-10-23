@@ -2,7 +2,7 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_last="false">
         <shape>
-            <solid android:color="@color/colorAccentDeep2" />
+            <solid android:color="?attr/timelineColor" />
         </shape>
     </item>
     <item android:state_last="true" android:drawable="@drawable/event_view_timeline_last"></item>

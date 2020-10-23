@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/event_view" />
+
+    <include
+        layout="@layout/event_view"
+        android:theme="@style/timelineGreen" />
+
+    <include
+        layout="@layout/event_view"
+        android:theme="@style/timelineOrange" />
+
+    <include
+        layout="@layout/event_view"
+        android:theme="@style/timelineRed" />
+
+    <include
+        layout="@layout/event_view"
+        android:theme="@style/timelineBlue" />
+
+    <include
+        layout="@layout/event_view"
+        android:theme="@style/timelineDark" />
+
+</LinearLayout>

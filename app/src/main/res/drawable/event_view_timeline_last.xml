@@ -3,8 +3,8 @@
 
     <gradient
         android:angle="270"
-        android:startColor="@color/colorAccentDeep2"
-        android:centerColor="@color/colorAccentDeep2"
+        android:startColor="?attr/timelineColor"
+        android:centerColor="?attr/timelineColor"
         android:centerY="0.5"
         android:endColor="#00000000" />
 
