@@ -32,6 +32,13 @@
                 android:scaleType="centerCrop"
                 app:layout_collapseMode="parallax" />
 
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/lineChart"
+                android:layout_marginTop="?attr/actionBarSize"
+                android:layout_marginBottom="?attr/actionBarSize"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/actionBar"
                 android:layout_width="match_parent"
@@ -40,14 +47,6 @@
                 app:popupTheme="@style/Widget.AppCompat.PopupMenu">
 
             </androidx.appcompat.widget.Toolbar>
-
-            <com.github.mikephil.charting.charts.LineChart
-                android:id="@+id/lineChart"
-                android:layout_marginTop="?attr/actionBarSize"
-                android:layout_marginBottom="?attr/actionBarSize"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
