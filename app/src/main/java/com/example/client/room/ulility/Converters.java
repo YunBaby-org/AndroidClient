@@ -2,6 +2,8 @@ package com.example.client.room.ulility;
 
 import androidx.room.TypeConverter;
 
+import com.example.client.room.entity.Event;
+
 import java.util.Date;
 
 public class Converters {
@@ -23,5 +25,15 @@ public class Converters {
     @TypeConverter
     public static EventType intToEventType(int value) {
         return EventType.fromInt(value);
+    }
+
+    @TypeConverter
+    public static Event.ID fromInt(int Id) {
+        return Event.ID.fromInt(Id);
+    }
+
+    @TypeConverter
+    public static int toInt(Event.ID id) {
+        return id.getValueID();
     }
 }

@@ -7,20 +7,17 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.example.client.R;
 import com.example.client.amqp.AmqpUtility;
 import com.example.client.requests.RequestScanGPS;
 import com.example.client.requests.RequestScanWifiSignal;
 import com.example.client.room.AppDatabase;
-import com.example.client.services.ForegroundService;
+import com.example.client.room.entity.Event;
 import com.rabbitmq.client.Channel;
 
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
-
-import static com.example.client.services.ServiceEventLogger.Event;
 
 public class AutoReportManager implements IHealthCheckable {
 
@@ -91,9 +88,8 @@ public class AutoReportManager implements IHealthCheckable {
             AmqpUtility.sendTrackerResponse(amqpChannel, trackerId, response);
             Log.d("AutoReportManager", "Auto Report Current GPS Location");
 
-            ForegroundService.emitEvent(Event.Info(R.string.event_description_auto_report_gps));
             appDatabase.eventDao().insertAll(
-                    com.example.client.room.entity.Event.response(R.string.event_description_auto_report_gps, "自動回報 GPS 位置")
+                    Event.response(Event.ID.AUTO_REPORT_GPS, "自動回報 GPS 位置")
             );
         }
         /* Next pending operation */
@@ -104,9 +100,8 @@ public class AutoReportManager implements IHealthCheckable {
         if (preferenceManager.getAutoReportWifi()) {
             wirelessSignalManager.invokeScanning();
             Log.d("AutoReportManager", "Initiate wireless scanning request");
-            ForegroundService.emitEvent(Event.Info(R.string.event_description_auto_report_scan_surrounding_wifi));
             appDatabase.eventDao().insertAll(
-                    com.example.client.room.entity.Event.response(R.string.event_description_auto_report_scan_surrounding_wifi, "掃描周遭 Wi-Fi 訊號")
+                    Event.response(Event.ID.AUTO_REPORT_SCAN_WIFI, "掃描周遭 Wi-Fi 訊號")
             );
         }
         Message message = new Message();
@@ -131,9 +126,8 @@ public class AutoReportManager implements IHealthCheckable {
 
                 /* Send it */
                 AmqpUtility.sendTrackerResponse(amqpChannel, trackerId, response);
-                ForegroundService.emitEvent(Event.Info(R.string.event_description_auto_report_send_wifi_signals));
                 appDatabase.eventDao().insertAll(
-                        com.example.client.room.entity.Event.response(R.string.event_description_auto_report_send_wifi_signals, "自動回報 Wi-Fi 訊號")
+                        Event.response(Event.ID.AUTO_REPORT_WIFI, "自動回報 Wi-Fi 訊號")
                 );
                 Log.d("AutoReportManager", "Auto Report Surrounding Wifi Signals");
 

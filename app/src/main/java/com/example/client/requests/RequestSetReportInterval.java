@@ -2,7 +2,6 @@ package com.example.client.requests;
 
 import android.util.Log;
 
-import com.example.client.R;
 import com.example.client.room.entity.Event;
 import com.example.client.services.ForegroundService;
 import com.example.client.services.ServiceState;
@@ -36,14 +35,14 @@ public class RequestSetReportInterval extends Request {
                     serviceState.getPreferenceManager().setReportIntervalGps(interval);
                     ForegroundService.emitEvent(com.example.client.services.ServiceEventLogger.Event.Info("更新 GPS 回報間隔為 " + interval));
                     serviceState.getAppDatabase().eventDao().insertAll(
-                            Event.debug(R.string.event_description_update_gps_report_interval)
+                            Event.debug(Event.ID.UPDATE_GPS_REPORT_INTERVAL)
                     );
                     break;
                 case WIFI:
                     serviceState.getPreferenceManager().setReportIntervalWifi(interval);
                     ForegroundService.emitEvent(com.example.client.services.ServiceEventLogger.Event.Info("更新 Wifi 回報間隔為 " + interval));
                     serviceState.getAppDatabase().eventDao().insertAll(
-                            Event.debug(R.string.event_description_update_wifi_report_interval)
+                            Event.debug(Event.ID.UPDATE_WIFI_REPORT_INTERVAL)
                     );
                     break;
                 default:

@@ -2,7 +2,6 @@ package com.example.client.requests;
 
 import android.util.Log;
 
-import com.example.client.R;
 import com.example.client.room.entity.Event;
 import com.example.client.services.ForegroundService;
 import com.example.client.services.ServiceState;
@@ -36,7 +35,7 @@ public class RequestSetAutoReport extends Request {
                     serviceState.getPreferenceManager().setAutoReportGps(Enable);
                     serviceState.getAppDatabase().eventDao().insertAll(
                             Event.debug(
-                                    Enable ? (R.string.event_description_enable_auto_report_gps) : (R.string.event_description_disable_gps_auto_report)
+                                    Enable ? (Event.ID.ENABLE_AUTO_REPORT_GPS) : (Event.ID.DISABLE_AUTO_REPORT_GPS)
                             )
                     );
                     ForegroundService.emitEvent(com.example.client.services.ServiceEventLogger.Event.Info("GPS自動回報 " + (Enable ? "開啟" : "關閉")));
@@ -45,7 +44,7 @@ public class RequestSetAutoReport extends Request {
                     serviceState.getPreferenceManager().setAutoReportWifi(Enable);
                     serviceState.getAppDatabase().eventDao().insertAll(
                             Event.debug(
-                                    Enable ? (R.string.event_description_enable_wifi_auto_report) : (R.string.event_description_disable_wifi_auto_report)
+                                    Enable ? (Event.ID.ENABLE_AUTO_REPORT_WIFI) : (Event.ID.DISABLE_AUTO_REPORT_WIFI)
                             )
                     );
                     ForegroundService.emitEvent(com.example.client.services.ServiceEventLogger.Event.Info("Wifi自動回報" + (Enable ? "開啟" : "關閉")));

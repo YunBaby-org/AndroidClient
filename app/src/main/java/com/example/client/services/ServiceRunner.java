@@ -3,7 +3,6 @@ package com.example.client.services;
 import android.content.Context;
 import android.util.Log;
 
-import com.example.client.R;
 import com.example.client.amqp.AmqpAuthentication;
 import com.example.client.room.entity.Event;
 
@@ -32,13 +31,13 @@ public class ServiceRunner implements Runnable {
             if (!initializeServiceContext()) {
                 ForegroundService.emitEvent(ServiceEventLogger.Event.Error("啟動失敗 :("));
                 serviceState.getAppDatabase().eventDao().insertAll(
-                        Event.warning(R.string.event_description_enable_service_failed, null)
+                        Event.warning(Event.ID.START_SERVICE_FAILED, null)
                 );
                 if (sleep(5000)) break;
                 continue;
             }
             ForegroundService.emitEvent(ServiceEventLogger.Event.Info("啟動服務"));
-            serviceState.getAppDatabase().eventDao().insertAll(Event.info(R.string.event_description_enable_service, null));
+            serviceState.getAppDatabase().eventDao().insertAll(Event.info(Event.ID.ENABLE_SERVICE, null));
 
             /* Monitor service state */
             while (true) {
@@ -53,7 +52,7 @@ public class ServiceRunner implements Runnable {
                     /* Oh no it broken, let restart it */
                     ForegroundService.emitEvent(ServiceEventLogger.Event.Error("平安符狀態異常, 重新啟動"));
                     serviceState.getAppDatabase().eventDao().insertAll(
-                            Event.error(R.string.event_description_warn_service_failure, null)
+                            Event.error(Event.ID.SERVICE_ENCOUNTER_FAILURE, null)
                     );
                     break;
                 }

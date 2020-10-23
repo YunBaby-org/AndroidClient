@@ -14,7 +14,7 @@ import com.example.client.room.dao.EventDao;
 import com.example.client.room.entity.Event;
 import com.example.client.room.ulility.Converters;
 
-@Database(entities = {Event.class}, version = 2)
+@Database(entities = {Event.class}, version = 3)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
     public abstract EventDao eventDao();
@@ -29,7 +29,7 @@ public abstract class AppDatabase extends RoomDatabase {
                             context.getApplicationContext(),
                             AppDatabase.class,
                             "app_database")
-                            .addMigrations(MIGRATION_1_2)
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                             .build();
             }
         }
@@ -41,6 +41,13 @@ public abstract class AppDatabase extends RoomDatabase {
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("DROP Table Event");
             database.execSQL("CREATE TABLE Event(id INTEGER PRIMARY KEY NOT NULL, time INTEGER, type INTEGER, eventId INTEGER NOT NULL, description TEXT)");
+        }
+    };
+    static final Migration MIGRATION_2_3 = new Migration(2, 3) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("DROP Table Event");
+            database.execSQL("CREATE TABLE Event(id INTEGER PRIMARY KEY NOT NULL, time INTEGER, type INTEGER, eventId INTEGER, description TEXT)");
         }
     };
 }

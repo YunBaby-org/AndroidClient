@@ -389,7 +389,7 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
 
         executorService.submit(() -> {
             appDatabase.eventDao().insertAll(
-                    Event.info(R.string.event_description_service_disabled)
+                    Event.info(Event.ID.STOP_SERVICE)
             );
         });
 

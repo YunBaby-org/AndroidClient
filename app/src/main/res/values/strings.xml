@@ -16,9 +16,6 @@
     <string name="main_activity_tracker_registration_cancelled">平安符註冊中斷</string>
     <string name="main_activity_tracker_registartion_please_wait">請稍候…</string>
     <string name="main_activity_tracker_registration_successful">平安符註冊成功</string>
-    <string name="event_description_auto_report_gps">主動回報 GPS 位置</string>
-    <string name="event_description_auto_report_scan_surrounding_wifi">掃描周遭 Wifi 訊號</string>
-    <string name="event_description_auto_report_send_wifi_signals">主動回報周邊 Wifi 訊號</string>
     <string name="AMQP_DEFAULT_HOSTNAME">192.168.0.3</string>
     <string name="scan_qrcode_prompt">請對準平安符的註冊 QR Code</string>
     <string name="TrackerDashboardActivity_prompt_remove_credentials">是否移除平安符憑證?</string>
@@ -26,10 +23,14 @@
     <string name="prompt_cancel">取消</string>
     <string name="prompt_confirmStop">確定停止</string>
     <string name="TrackerDashboardActivity_prompt_stop_tracking">是否中止追蹤?</string>
-    <string name="event_title_receive_request">收到 Request</string>
+    <string name="event_description_receive_request">收到 Request</string>
     <string name="action_bar_title_service_enabled">平安符運作中</string>
     <string name="action_bar_title_service_disabled">平安符已關閉</string>
+
     <string name="event_description_enable_service">啟動服務</string>
+    <string name="event_description_auto_report_gps">主動回報 GPS 位置</string>
+    <string name="event_description_auto_report_scan_surrounding_wifi">掃描周遭 Wifi 訊號</string>
+    <string name="event_description_auto_report_send_wifi_signals">主動回報周邊 Wifi 訊號</string>
     <string name="event_description_enable_service_failed">平安符啟動失敗</string>
     <string name="event_description_warn_service_failure">平安符狀態異常, 重新啟動</string>
     <string name="event_description_enable_auto_report_gps">開啟 GPS 自動回報</string>
@@ -39,5 +40,6 @@
     <string name="event_description_update_gps_report_interval">更新 GPS 回報間隔</string>
     <string name="event_description_update_wifi_report_interval">更新 Wi-Fi 訊號回報間格</string>
     <string name="event_description_service_disabled">手動關閉平安符服務</string>
+    <string name="WTF">unknown</string>
 
 </resources>
