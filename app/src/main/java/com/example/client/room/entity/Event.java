@@ -88,6 +88,7 @@ public class Event {
             return this.value;
         }
 
+        /* TODO: Refactor these shitty code */
         /* Step3: Add a new entry for your enum, and return the right String Resource ID */
         public int getResId() {
             switch (this) {
@@ -119,6 +120,33 @@ public class Event {
                     return R.string.event_description_receive_request;
                 case ENABLE_SERVICE:
                     return R.string.event_description_enable_service;
+                default:
+                    Log.wtf("Event", "I don't know about this EventID -> " + this.getValueID());
+                    return R.string.WTF;
+            }
+        }
+
+        public int getThemeId() {
+            switch (this) {
+                case AUTO_REPORT_GPS:
+                case AUTO_REPORT_SCAN_WIFI:
+                case AUTO_REPORT_WIFI:
+                case ENABLE_AUTO_REPORT_GPS:
+                case DISABLE_AUTO_REPORT_GPS:
+                case ENABLE_AUTO_REPORT_WIFI:
+                case DISABLE_AUTO_REPORT_WIFI:
+                case UPDATE_GPS_REPORT_INTERVAL:
+                case UPDATE_WIFI_REPORT_INTERVAL:
+                case RECEIVE_REQUEST:
+                    return R.style.AppTheme;
+                case START_SERVICE_FAILED:
+                    return R.style.timelineOrange;
+                case SERVICE_ENCOUNTER_FAILURE:
+                    return R.style.timelineRed;
+                case STOP_SERVICE:
+                    return R.style.timelineDark;
+                case ENABLE_SERVICE:
+                    return R.style.timelineGreen;
                 default:
                     Log.wtf("Event", "I don't know about this EventID -> " + this.getValueID());
                     return R.string.WTF;

@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -45,10 +46,29 @@ public class EventRecyclerViewAdapter extends RecyclerView.Adapter<EventRecycler
         holder.event = events.get(position);
         holder.tv.setText(context.getString(events.get(position).eventId.getResId()));
         holder.updateTime(context);
+
+        /* Apply specific timeline style(theme) to the timeline view */
+        /* WTF is going on with these code?
+         * Answer: This is very tricky to apply custom styles/attributes to views,
+         *         We adopt a hacky solution here. First we change the
+         *         theme of current application(since our style attribute is all custom(timelineColor, timelineIconBack...)
+         *         it won't affect other usual views)
+         *
+         *         And then we create the new timeline related drawables.
+         *         These drawable's style is defined during the creation, since we just update
+         *         the theme and our custom attributes. The new drawable will create with the
+         *         custom attributes we just set.
+         */
+        int styleId = events.get(position).eventId.getThemeId();
+        context.getTheme().applyStyle(styleId, true);
+        /* With the new theme, lets update the style of Event view */
+        holder.imageView.setBackgroundResource(R.drawable.event_view_icon_background);
         /* Hack: this is a shame that Android provide the "state_last" for selector but never implement them */
         /*       We have to determine such condition by hard written logic below */
         if (position == events.size() - 1)
             holder.timeline.setBackgroundResource(R.drawable.event_view_timeline_last);
+        else
+            holder.timeline.setBackgroundResource(R.drawable.event_view_timeline);
     }
 
     @Override
@@ -62,12 +82,14 @@ public class EventRecyclerViewAdapter extends RecyclerView.Adapter<EventRecycler
         private TextView tv;
         private TextView tvTime;
         private FrameLayout timeline;
+        private ImageView imageView;
 
         public EventViewHolder(@NonNull View itemView) {
             super(itemView);
             tv = itemView.findViewById(R.id.textView);
             tvTime = itemView.findViewById(R.id.textViewTime);
             timeline = itemView.findViewById(R.id.timeline);
+            imageView = itemView.findViewById(R.id.imageView);
         }
 
         private void setTimeText(String text) {
