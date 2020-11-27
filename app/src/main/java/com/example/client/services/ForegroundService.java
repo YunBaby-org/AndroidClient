@@ -77,7 +77,8 @@ public class ForegroundService extends Service {
     @Override
     public void onDestroy() {
         Log.i("ForegroundRunner", "Attempts to stop service thread.");
-        this.serviceThread.interrupt();
+        if (this.serviceThread != null)
+            this.serviceThread.interrupt();
         super.onDestroy();
     }
 

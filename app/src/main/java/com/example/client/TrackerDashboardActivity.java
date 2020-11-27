@@ -135,6 +135,8 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
         runServiceStateCheck = checkServiceState(5000, true);
 
         initLog();
+
+        Log.i("AutoRestart", "" + pm.getServiceAutoRestart());
     }
 
     private void switchServiceOnOff() {
