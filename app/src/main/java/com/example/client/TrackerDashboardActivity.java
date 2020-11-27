@@ -101,6 +101,7 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
 
         pm = new PreferenceManager(this);
 
+        handler = new Handler(getMainLooper());
         appDatabase = AppDatabase.getDatabase(TrackerDashboardActivity.this);
         toolbar = findViewById(R.id.actionBar);
         collapsingToolbarLayout = findViewById(R.id.collapsingToolbarLayout);
@@ -228,59 +229,64 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
         // lineChart.getAxisLeft().setAxisMinimum(-5);
         // lineChart.getAxisLeft().setAxisMaximum( 5);
 
-        setupUpdateEvent();
     }
 
+    private Runnable updateRunner = null;
+    private Handler handler;
+
     private void setupUpdateEvent() {
-        Handler handler = new Handler(getMainLooper());
 
-        handler.postDelayed((Runnable) () -> {
-            executorService.execute((Runnable) () -> {
-                /* Get time */
-                Calendar c = Calendar.getInstance();
-                Date current = new Date();
-                c.setTime(current);
-                c.add(Calendar.SECOND, -1);
-                Date last10Sec = c.getTime();
+        if (updateRunner == null) {
+            updateRunner = (Runnable) () -> {
+                executorService.execute((Runnable) () -> {
+                    /* Get time */
+                    Calendar c = Calendar.getInstance();
+                    Date current = new Date();
+                    c.setTime(current);
+                    c.add(Calendar.SECOND, -1);
+                    Date last10Sec = c.getTime();
 
-                /* Query */
-                int countResponse = appDatabase.eventDao().countItem(EventType.SEND_RESPONSE, last10Sec, current);
-                int countRequest = appDatabase.eventDao().countItem(EventType.RECEIVE_REQUEST, last10Sec, current);
-                List<Event> newEvents = appDatabase.eventDao().getEventsSince(last10Sec, 100);
-                int removeFrom = 0;
-                int removeSize = 0;
-                if (events.size() + newEvents.size() > RECYCLER_ITEM_CLEAR_TRIGGER) {
-                    removeFrom = RECYCLER_ITEM_LIMIT - newEvents.size();
-                    removeSize = events.size() - removeFrom;
-                    events.subList(removeFrom, removeFrom + removeSize).clear();
-                }
-                events.addAll(0, newEvents);
-
-                final int from = removeFrom;
-                final int size = removeSize;
-                /* Update */
-                runOnUiThread((Runnable) () -> {
-                    updateChartItem(countResponse, countRequest);
-                    updateEventViewTime();
-                    if (from != 0 && size != 0) {
-                        recyclerAdapter.notifyItemRangeRemoved(from, size);
-                        /* SetAdapter will force draw every element in Recycler View
-                         * We need to do this to make sure the style of recycled view get updated
-                         *
-                         * Remove the below line and observe how the style of recycled view stay still.
-                         * You will see what I mean :(
-                         *
-                         * Another interest thing is, setAdapter doesn't trigger animation.
-                         * So the result is pretty awful. to prevent this, we won't trigger the recycle
-                         * operation very often. User **probably** won't notice it :3333
-                         * */
-                        recyclerView.setAdapter(recyclerAdapter);
+                    /* Query */
+                    int countResponse = appDatabase.eventDao().countItem(EventType.SEND_RESPONSE, last10Sec, current);
+                    int countRequest = appDatabase.eventDao().countItem(EventType.RECEIVE_REQUEST, last10Sec, current);
+                    List<Event> newEvents = appDatabase.eventDao().getEventsSince(last10Sec, 100);
+                    int removeFrom = 0;
+                    int removeSize = 0;
+                    if (events.size() + newEvents.size() > RECYCLER_ITEM_CLEAR_TRIGGER) {
+                        removeFrom = RECYCLER_ITEM_LIMIT - newEvents.size();
+                        removeSize = events.size() - removeFrom;
+                        events.subList(removeFrom, removeFrom + removeSize).clear();
                     }
-                    recyclerAdapter.notifyItemRangeInserted(0, newEvents.size());
-                    setupUpdateEvent();                 /* Repeat itself */
+                    events.addAll(0, newEvents);
+
+                    final int from = removeFrom;
+                    final int size = removeSize;
+                    /* Update */
+                    runOnUiThread((Runnable) () -> {
+                        updateChartItem(countResponse, countRequest);
+                        updateEventViewTime();
+                        if (from != 0 && size != 0) {
+                            recyclerAdapter.notifyItemRangeRemoved(from, size);
+                            /* SetAdapter will force draw every element in Recycler View
+                             * We need to do this to make sure the style of recycled view get updated
+                             *
+                             * Remove the below line and observe how the style of recycled view stay still.
+                             * You will see what I mean :(
+                             *
+                             * Another interest thing is, setAdapter doesn't trigger animation.
+                             * So the result is pretty awful. to prevent this, we won't trigger the recycle
+                             * operation very often. User **probably** won't notice it :3333
+                             * */
+                            recyclerView.setAdapter(recyclerAdapter);
+                        }
+                        recyclerAdapter.notifyItemRangeInserted(0, newEvents.size());
+                        setupUpdateEvent();                 /* Repeat itself */
+                    });
                 });
-            });
-        }, 1000);
+            };
+        }
+
+        handler.postDelayed(updateRunner, 1000);
     }
 
     private void initLog() {
@@ -373,6 +379,13 @@ public class TrackerDashboardActivity extends AppCompatActivity implements Servi
         if (isMyServiceRunning(ForegroundService.class)) {
             bindToService();
         }
+        setupUpdateEvent();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        handler.removeCallbacks(updateRunner);
     }
 
     @Override
