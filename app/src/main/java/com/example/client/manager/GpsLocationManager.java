@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Looper;
+import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 
@@ -64,7 +65,7 @@ public class GpsLocationManager implements IHealthCheckable {
         return GPS && NET;
     }
 
-    public Location getLastLocation() throws SecurityException, InterruptedException, ExecutionException, TimeoutException, OutdatedLocationException, LocationProviderDisabledException {
+    public Location getLastLocation() throws SecurityException, InterruptedException, ExecutionException, TimeoutException, OutdatedLocationException, LocationProviderDisabledException, UnreliableLocationException {
         /* Test if the provider is enabled */
         if (!isProviderEnable())
             throw new LocationProviderDisabledException();
@@ -77,9 +78,19 @@ public class GpsLocationManager implements IHealthCheckable {
         /* Otherwise we raise a exception as the last known location is probably out-dated */
         LocationAvailability availability = Tasks.await(taskAvailability, 2500, TimeUnit.MILLISECONDS);
         /* TODO: Sometime the GPS result always keeps outdated, this is a complex issue since it might related to many reason */
-        if (availability.isLocationAvailable())
-            return Tasks.await(taskLocation, 2500, TimeUnit.MILLISECONDS);
-        else
+        if (availability.isLocationAvailable()) {
+            Location location = Tasks.await(taskLocation, 2500, TimeUnit.MILLISECONDS);
+            if (location.hasAccuracy()) {
+                Log.d("GpsLocationManager", "GPS Location accuracy: " + location.getAccuracy());
+                if (location.getAccuracy() <= 50)
+                    return location;
+                else
+                    throw new UnreliableLocationException();
+            } else {
+                Log.w("GpsLocationManager", "No accuracy information available for Gps Location");
+                return location;
+            }
+        } else
             throw new OutdatedLocationException();
     }
 
@@ -115,6 +126,11 @@ public class GpsLocationManager implements IHealthCheckable {
 
     public class LocationProviderDisabledException extends Throwable {
         public LocationProviderDisabledException() {
+        }
+    }
+
+    public class UnreliableLocationException extends Throwable {
+        public UnreliableLocationException() {
         }
     }
 }

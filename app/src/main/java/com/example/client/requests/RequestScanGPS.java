@@ -59,6 +59,9 @@ public class RequestScanGPS extends Request {
         } catch (GpsLocationManager.LocationProviderDisabledException e) {
             e.printStackTrace();
             return createFailedResponse(requestName, "Android Location Provider Disabled");
+        } catch (GpsLocationManager.UnreliableLocationException e) {
+            e.printStackTrace();
+            return createFailedResponse(requestName, "Location accuracy unreliable");
         } catch (Exception e) {
             e.printStackTrace();
             return createFailedResponse(requestName, "Internal Error");
